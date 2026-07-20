@@ -1,0 +1,34 @@
+# Node / Frontend build artifacts
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+
+# Python bytecode and test/build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+*.egg-info/
+
+# Local environments and editor settings
+.venv/
+venv/
+.env
+.vscode/
+.idea/
+
+# Large binaries and archives
+*.zip
+tools/renode*/
+
+# Generated analysis and model artifacts (retain source-controlled manifests/configs)
+analysis/output/
+ml/artifacts/
+
+# Compiled benchmark binaries (generated from source; each environment has a build/ dir)
+environments/*/build/
+
+# Preserve directory placeholders; raw benchmark data is intentionally not ignored.
