@@ -1,0 +1,5 @@
+using sysbus
+mach create "mlkem-cortex-m4"
+machine LoadPlatformDescription @platforms/boards/stm32f4_discovery-kit.repl
+sysbus LoadELF @environments/cortex_m4/build/mlkem_cortex_m4.elf
+start
