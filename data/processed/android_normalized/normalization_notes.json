@@ -1,0 +1,38 @@
+{
+  "normalization_date": "2026-08-13",
+  "reason": "Two metadata fields in the admitted raw Android CSVs record non-standard or imprecise values. Raw CSVs are immutable; this record documents the correct values for downstream use.",
+  "affected_raw_files": [
+    "data/raw/android_vivo_y19_mlkem_512_20260812T204747Z.csv",
+    "data/raw/android_vivo_y19_mlkem_768_20260812T204804Z.csv",
+    "data/raw/android_vivo_y19_mlkem_1024_20260812T204813Z.csv"
+  ],
+  "field_corrections": [
+    {
+      "column": "measurement_type",
+      "raw_value": "NATIVE_HARDWARE",
+      "normalized_value": "REAL_HARDWARE",
+      "reason": "Project-standard vocabulary (PROJECT_PLAN.md, README.md) uses REAL_HARDWARE for measurements taken on a physical device. NATIVE_HARDWARE was a non-standard label used in the original Android runner before standardization."
+    },
+    {
+      "column": "processor",
+      "raw_value": "aarch64",
+      "normalized_value": "MediaTek Helio P65 (MT6768)",
+      "reason": "The Android C runner reads processor from uname(2).machine which returns the ISA string ('aarch64') on ARM Linux, not the SoC model. The actual SoC is the MediaTek Helio P65 (MT6768) confirmed from Vivo Y19 published specifications.",
+      "evidence": {
+        "device_model": "Vivo Y19 (V1915A)",
+        "soc": "MediaTek Helio P65 (MT6768)",
+        "cpu_cores_raw": "8",
+        "ram_mb_raw": "3741",
+        "consistency_check": "cpu_cores=8 and ram_mb=3741 in raw CSVs are consistent with Helio P65 specifications (8-core SoC, 4 GB LPDDR4x with OS overhead)"
+      }
+    },
+    {
+      "column": "architecture",
+      "raw_value": "aarch64",
+      "normalized_value": "aarch64",
+      "reason": "architecture column is CORRECT and does not need correction. aarch64 is the proper ISA label for ARM64."
+    }
+  ],
+  "integrity_commitment": "Raw CSV SHA-256 hashes are unchanged. This normalization record is documentation only. No raw file has been modified.",
+  "runner_fix": "environments/android_arm64/validate_android_csv.py updated to accept REAL_HARDWARE for future runs. environments/android_arm64/mlkem_android_benchmark.c updated to accept BENCHMARK_PROCESSOR_LABEL compile-time define."
+}

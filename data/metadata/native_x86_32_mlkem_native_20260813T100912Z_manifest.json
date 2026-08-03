@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-08-13T10:09:29.517989+00:00",
+  "timestamp_token": "20260813T100912Z",
+  "raw_files": [
+    "native_x86_32_mlkem_native_mlkem_1024_20260813T100912Z.csv",
+    "native_x86_32_mlkem_native_mlkem_512_20260813T100912Z.csv",
+    "native_x86_32_mlkem_native_mlkem_768_20260813T100912Z.csv"
+  ],
+  "total_rows": 9000,
+  "environment": "native_x86_32_wsl2_mlkem_native",
+  "measurement_type": "NATIVE_SOFTWARE",
+  "architecture": "x86",
+  "processor": "AMD Ryzen 5 4600H with Radeon Graphics (32-bit mode)",
+  "implementation": {
+    "name": "mlkem-native",
+    "version": "v1.2.0 (0ba906cb14b1c241476134d7403a811b382ca498)",
+    "commit": "0ba906cb14b1c241476134d7403a811b382ca498"
+  },
+  "os": "Linux 6.18.33.2-microsoft-standard-WSL2 (i686)",
+  "note": "32-bit x86 (i686) native benchmark run using gcc -m32 under WSL2 Ubuntu."
+}

@@ -1,0 +1,51 @@
+{
+  "experiment_id": "86230baa-0c3e-43a8-8879-a0e633ce9dec",
+  "run_id": "56e5dbbb-b79e-4bbd-82ac-528998b82b14",
+  "created_at": "2026-08-12T16:54:13.191583+00:00",
+  "config": {
+    "environment": {
+      "name": "native_windows_x86_64",
+      "type": "NATIVE_SOFTWARE",
+      "architecture": "x86_64",
+      "notes": "Native CPython process using pqcrypto ML-KEM bindings on Windows."
+    },
+    "implementation": {
+      "name": "pqcrypto",
+      "version": "0.4.0",
+      "backend": "pqcrypto native ML-KEM bindings"
+    },
+    "variants": [
+      "ML-KEM-512",
+      "ML-KEM-768",
+      "ML-KEM-1024"
+    ],
+    "operations": [
+      "keygen",
+      "encapsulation",
+      "decapsulation"
+    ],
+    "iterations": 100
+  },
+  "environment_metadata": {
+    "environment": "native_windows_x86_64",
+    "measurement_type": "NATIVE_SOFTWARE",
+    "architecture": "x86_64",
+    "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+    "cpu_cores": 12,
+    "ram_mb": 7598,
+    "os": "Windows-11-10.0.26200-SP0",
+    "compiler": "N/A (prebuilt Python extension wheel)",
+    "compiler_version": "N/A",
+    "optimization_flags": "N/A (prebuilt wheel)",
+    "implementation": "pqcrypto",
+    "implementation_version": "0.4.0",
+    "implementation_backend": "pqcrypto native ML-KEM bindings",
+    "python_version": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
+    "machine": "AMD64"
+  },
+  "raw_data_file": "C:\\Users\\abhay\\OneDrive\\Desktop\\mlkemnew\\data\\raw\\native_x86_64_20260812T165412Z_56e5dbbb-b79e-4bbd-82ac-528998b82b14.csv",
+  "measurement_count": 900,
+  "memory_bytes_definition": "Post-operation process working-set size, in bytes.",
+  "timing_definition": "perf_counter_ns elapsed time around the specified ML-KEM operation only; setup is excluded for encapsulation and decapsulation.",
+  "random_seed": "Not set; the implementation uses its cryptographic system RNG."
+}
