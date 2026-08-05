@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0",
+  "provenance": "DERIVED / Project-Defined Application Profiles",
+  "description": "Standardized application requirement profiles mapping deployment scenarios to security, performance, latency, and memory requirements on a 1-5 scale.",
+  "scale_definition": {
+    "1": "Very Low / Minimal",
+    "2": "Low / Relaxed",
+    "3": "Moderate / Balanced",
+    "4": "High / Strict",
+    "5": "Very High / Critical (NIST Category 5 Mandatory)"
+  },
+  "profiles": [
+    {
+      "id": "banking_finance",
+      "name": "Banking & Financial Services",
+      "category": "Enterprise / High Security",
+      "description": "Payment gateways, core banking transactions, and high-value financial transfers requiring strong long-term confidentiality and strict latency bounds.",
+      "security_requirement": 4,
+      "latency_sensitivity": 4,
+      "throughput_importance": 4,
+      "memory_constraint_level": 2,
+      "compute_budget_level": 4,
+      "max_acceptable_latency_ms": 1.0,
+      "min_recommended_variant": "ML-KEM-768"
+    },
+    {
+      "id": "iot_embedded",
+      "name": "IoT & Resource-Constrained Embedded",
+      "category": "Embedded / Edge",
+      "description": "Smart home sensors, industrial IoT nodes, and battery-powered microcontrollers with tight RAM, flash memory, and compute power limits.",
+      "security_requirement": 2,
+      "latency_sensitivity": 2,
+      "throughput_importance": 2,
+      "memory_constraint_level": 5,
+      "compute_budget_level": 1,
+      "max_acceptable_latency_ms": 10.0,
+      "min_recommended_variant": "ML-KEM-512"
+    },
+    {
+      "id": "cloud_datacenter",
+      "name": "Cloud & High-Throughput Data Center",
+      "category": "Cloud / Server",
+      "description": "Web servers, API gateways, TLS termination proxies, and microservices needing maximum operations per second and multi-core scalability.",
+      "security_requirement": 4,
+      "latency_sensitivity": 3,
+      "throughput_importance": 5,
+      "memory_constraint_level": 1,
+      "compute_budget_level": 5,
+      "max_acceptable_latency_ms": 2.0,
+      "min_recommended_variant": "ML-KEM-768"
+    },
+    {
+      "id": "mobile_edge",
+      "name": "Mobile & Edge Devices",
+      "category": "Mobile / Edge",
+      "description": "Smartphones, tablets, and mobile apps balancing battery life, interactive user experience, and mobile network constraints.",
+      "security_requirement": 3,
+      "latency_sensitivity": 4,
+      "throughput_importance": 3,
+      "memory_constraint_level": 3,
+      "compute_budget_level": 3,
+      "max_acceptable_latency_ms": 1.5,
+      "min_recommended_variant": "ML-KEM-768"
+    },
+    {
+      "id": "healthcare_hipaa",
+      "name": "Healthcare & Patient Records",
+      "category": "Healthcare / Compliance",
+      "description": "Electronic health records (EHR), medical telemetry, and HIPAA-compliant data exchange requiring decades of post-quantum data privacy.",
+      "security_requirement": 5,
+      "latency_sensitivity": 2,
+      "throughput_importance": 2,
+      "memory_constraint_level": 2,
+      "compute_budget_level": 3,
+      "max_acceptable_latency_ms": 5.0,
+      "min_recommended_variant": "ML-KEM-1024"
+    },
+    {
+      "id": "government_defense",
+      "name": "Government & Critical Infrastructure",
+      "category": "Government / Defense",
+      "description": "Classified communication, defense systems, energy grid control, and national security infrastructure requiring NIST Category 5 maximum security.",
+      "security_requirement": 5,
+      "latency_sensitivity": 3,
+      "throughput_importance": 3,
+      "memory_constraint_level": 1,
+      "compute_budget_level": 4,
+      "max_acceptable_latency_ms": 3.0,
+      "min_recommended_variant": "ML-KEM-1024"
+    }
+  ]
+}
