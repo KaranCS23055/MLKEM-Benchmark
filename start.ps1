@@ -1,6 +1,8 @@
 # ML-KEM Benchmark Framework — Start Backend + Frontend
 # Run: .\start.ps1
 
+$ErrorActionPreference = 'SilentlyContinue'
+
 $ScriptDir = $PSScriptRoot
 if (-not $ScriptDir) { $ScriptDir = Get-Location }
 
@@ -31,13 +33,14 @@ if (-not (Test-Path $PythonExe)) {
 
 $backendJob = Start-Job -ScriptBlock {
     param($root, $py)
+    $ErrorActionPreference = 'SilentlyContinue'
     Set-Location $root
-    & $py -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+    & $py -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 2>&1
 } -ArgumentList $RootDir, $PythonExe
 
 Write-Host "      Backend Job ID: $($backendJob.Id)" -ForegroundColor Green
 
-Start-Sleep -Seconds 3
+Start-Sleep -Seconds 2
 
 # ── 2. Frontend (Vite + React) ────────────────────────────────────────────────
 Write-Host "[2/2] Starting Vite frontend on http://localhost:3000 ..." -ForegroundColor Yellow
@@ -45,16 +48,17 @@ $frontendDir = Join-Path $RootDir "frontend"
 
 $frontendJob = Start-Job -ScriptBlock {
     param($fDir)
+    $ErrorActionPreference = 'SilentlyContinue'
     Set-Location $fDir
-    npm run dev
+    npm run dev 2>&1
 } -ArgumentList $frontendDir
 
 Write-Host "      Frontend Job ID: $($frontendJob.Id)" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "--------------------------------------------" -ForegroundColor Cyan
-Write-Host "  Backend API  : http://localhost:8000/docs  " -ForegroundColor White
-Write-Host "  Frontend UI  : http://localhost:3000       " -ForegroundColor White
+Write-Host "  Backend API Docs  : http://localhost:8000/docs  " -ForegroundColor White
+Write-Host "  Frontend Dashboard : http://localhost:3000       " -ForegroundColor White
 Write-Host "--------------------------------------------" -ForegroundColor Cyan
 Write-Host "  Press Ctrl+C to stop all services.        " -ForegroundColor Gray
 Write-Host ""
