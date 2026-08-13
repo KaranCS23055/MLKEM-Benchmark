@@ -26,7 +26,8 @@ tools/renode*/
 
 # Generated analysis and model artifacts (retain source-controlled manifests/configs)
 analysis/output/
-ml/artifacts/
+ml/artifacts/*
+!ml/artifacts/*.joblib
 
 # Compiled benchmark binaries (generated from source; each environment has a build/ dir)
 environments/*/build/

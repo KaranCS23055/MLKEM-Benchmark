@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "created_at_utc": "2026-08-13T17:34:10.637491+00:00",
+  "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
+  "normalization": {
+    "NATIVE_HARDWARE": "REAL_HARDWARE"
+  },
+  "row_count": 45000,
+  "successful_measurement_count": 45000,
+  "statistics_group_count": 45,
+  "source_files": [
+    {
+      "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
+      "sha256": "202b6123b101785224a7f6c335d2f2c82aee76a9ab8c59e0fe81dd8f628d51fe",
+      "row_count": 3000
+    },
+    {
+      "file": "android_vivo_y19_mlkem_512_20260812T204747Z.csv",
+      "sha256": "1ff9e708ea99500dbb471b90ce6335f4b82b6aba2417cc77a85255decd1ff27f",
+      "row_count": 3000
+    },
+    {
+      "file": "android_vivo_y19_mlkem_768_20260812T204804Z.csv",
+      "sha256": "7c612e7b39e6ca1293f2df03238fa1bf6d1a56793d7d40aef5b62c080a43c16b",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_32_mlkem_native_mlkem_1024_20260813T100912Z.csv",
+      "sha256": "862af7449002a310051d876f78ad8b4bea4f94fc1d778f52df7189ba503c88fd",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_32_mlkem_native_mlkem_512_20260813T100912Z.csv",
+      "sha256": "25bf1105c324797def22415ed8c6168569a3c50f87d3c6d5d1a1d0125173247a",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_32_mlkem_native_mlkem_768_20260813T100912Z.csv",
+      "sha256": "ab63c34952a293b22862a0e90f4b2079463cb7d2cba3b8d379c00e429af59305",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_mlkem_native_mlkem_1024_20260813T090600Z.csv",
+      "sha256": "bc9f993e5d1c290cbbc6f58fd5f6da6ec5d389ce387a0a7e9918c56810627101",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_mlkem_native_mlkem_512_20260813T090600Z.csv",
+      "sha256": "38264d290f71239f3ebf42fcf7e28e9ab6bd1ea98b067c022304207bb612a275",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_mlkem_native_mlkem_768_20260813T090600Z.csv",
+      "sha256": "24cfd793275ff86beee19dcadb18e04355bb4dc7fc3837c80b6dc115dc266070",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_single_core_mlkem_native_mlkem_1024_20260813T094355Z.csv",
+      "sha256": "f595818e402e6c3239ce2a6c2a08eb3f0c5fb1c5ba8ba7ab0091c7bcd690e957",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_single_core_mlkem_native_mlkem_512_20260813T094355Z.csv",
+      "sha256": "d753cc2795a93c4018d665be9441d5c38703c3e3021d1ab7a364a10fb441789b",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_single_core_mlkem_native_mlkem_768_20260813T094355Z.csv",
+      "sha256": "0f44e24fb6d52a4e533e4773c38fcf9dfe049eb9ac508e6202a9d2cd760ab5fa",
+      "row_count": 3000
+    },
+    {
+      "file": "riscv64_qemu_mlkem_1024_20260812T224224Z.csv",
+      "sha256": "6ccb3a5c9121a9d3de04f5cc4106432a9270cb229bb9d55a1416849ea0e3bd11",
+      "row_count": 3000
+    },
+    {
+      "file": "riscv64_qemu_mlkem_512_20260812T224101Z.csv",
+      "sha256": "087ae8677b9d83c456a9c4a231cd38e71a4fcf6da218af65e1c2cc0b9b6f9809",
+      "row_count": 3000
+    },
+    {
+      "file": "riscv64_qemu_mlkem_768_20260812T224148Z.csv",
+      "sha256": "07ac905d06d448381be451cf7d81f5c9302835255f84586111a459f645a6dea5",
+      "row_count": 3000
+    }
+  ],
+  "measurement_type_counts": {
+    "EMULATED": 9000,
+    "NATIVE_SOFTWARE": 27000,
+    "REAL_HARDWARE": 9000
+  },
+  "limitations": [
+    "Timing values from different execution types must not be pooled as equivalent hardware performance.",
+    "NATIVE_SOFTWARE x86 configurations share one physical host and are execution configurations, not independent devices.",
+    "EMULATED results are not measurements of physical RISC-V hardware.",
+    "memory_bytes is a process-level measurement, not per-operation memory allocation."
+  ]
+}

@@ -4,7 +4,7 @@ This registry is the authoritative admission record for benchmark data. `data/ra
 
 ## Admitted benchmark datasets (45,000 rows total)
 
-All 45,000 admitted rows are directly comparable and use **`mlkem-native v1.2.0`** (commit `0ba906cb14b1c241476134d7403a811b382ca498`).
+All 45,000 admitted rows use the same **`mlkem-native v1.2.0`** implementation (commit `0ba906cb14b1c241476134d7403a811b382ca498`) and the same operation protocol. They are comparable for implementation-level analysis, but timings from different execution types must **not** be pooled or claimed as equivalent physical-hardware performance.
 
 | Environment ID | Architecture | Execution Type | Compiler | Rows | Scope |
 | --- | --- | --- | --- | ---: | --- |
@@ -14,7 +14,7 @@ All 45,000 admitted rows are directly comparable and use **`mlkem-native v1.2.0`
 | `android_vivo_y19_termux` | `aarch64` | `REAL_HARDWARE`¹ | Clang 18.1 | 9,000 | Physical Vivo Y19 Phone (Helio P65 MT6768), 1,000 iterations |
 | `riscv64_qemu_linux` | `riscv64` | `EMULATED` | GCC 13.3 | 9,000 | RISC-V 64-bit Ubuntu QEMU guest, 1,000 iterations per variant |
 
-**Total comparable training rows: 45,000 across 5 distinct environments.**
+**Total admitted observations: 45,000 across 5 distinct execution configurations.** The x86-64 multi-core, x86-64 single-core, and x86-32 configurations use the same physical Ryzen host; they are not three independent devices. RISC-V is emulated.
 
 ¹ Raw CSVs record `measurement_type = "NATIVE_HARDWARE"` (legacy label used before standardization). The correct project-standard label is `REAL_HARDWARE`. The normalization is documented in `data/processed/android_normalized/`.
 
