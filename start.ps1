@@ -1,39 +1,64 @@
 # ML-KEM Benchmark Framework — Start Backend + Frontend
 # Run: .\start.ps1
 
+$ScriptDir = $PSScriptRoot
+if (-not $ScriptDir) { $ScriptDir = Get-Location }
+
+# Locate root directory containing start.ps1
+if (Test-Path (Join-Path $ScriptDir "start.ps1")) {
+    $RootDir = $ScriptDir
+} elseif (Test-Path (Join-Path $ScriptDir "..\start.ps1")) {
+    $RootDir = Resolve-Path (Join-Path $ScriptDir "..")
+} else {
+    $RootDir = Get-Location
+}
+
+Set-Location $RootDir
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "  ML-KEM Benchmark Framework - Starting Up " -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "  Project Root: $RootDir" -ForegroundColor Gray
 Write-Host ""
 
 # ── 1. Backend (FastAPI) ──────────────────────────────────────────────────────
 Write-Host "[1/2] Starting FastAPI backend on http://localhost:8000 ..." -ForegroundColor Yellow
-$backendJob = Start-Job -ScriptBlock {
-    Set-Location $using:PWD
-    & ".\.venv\Scripts\python.exe" -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+$PythonExe = Join-Path $RootDir ".venv\Scripts\python.exe"
+if (-not (Test-Path $PythonExe)) {
+    $PythonExe = "python"
 }
-Write-Host "      Backend PID: $($backendJob.Id)" -ForegroundColor Green
+
+$backendJob = Start-Job -ScriptBlock {
+    param($root, $py)
+    Set-Location $root
+    & $py -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+} -ArgumentList $RootDir, $PythonExe
+
+Write-Host "      Backend Job ID: $($backendJob.Id)" -ForegroundColor Green
 
 Start-Sleep -Seconds 3
 
 # ── 2. Frontend (Vite + React) ────────────────────────────────────────────────
 Write-Host "[2/2] Starting Vite frontend on http://localhost:3000 ..." -ForegroundColor Yellow
+$frontendDir = Join-Path $RootDir "frontend"
+
 $frontendJob = Start-Job -ScriptBlock {
-    Set-Location (Join-Path $using:PWD "frontend")
+    param($fDir)
+    Set-Location $fDir
     npm run dev
-}
-Write-Host "      Frontend PID: $($frontendJob.Id)" -ForegroundColor Green
+} -ArgumentList $frontendDir
+
+Write-Host "      Frontend Job ID: $($frontendJob.Id)" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "--------------------------------------------" -ForegroundColor Cyan
-Write-Host "  Backend  : http://localhost:8000/docs      " -ForegroundColor White
-Write-Host "  Frontend : http://localhost:3000           " -ForegroundColor White
+Write-Host "  Backend API  : http://localhost:8000/docs  " -ForegroundColor White
+Write-Host "  Frontend UI  : http://localhost:3000       " -ForegroundColor White
 Write-Host "--------------------------------------------" -ForegroundColor Cyan
 Write-Host "  Press Ctrl+C to stop all services.        " -ForegroundColor Gray
 Write-Host ""
 
-# Wait and stream output from both jobs
 try {
     while ($true) {
         Receive-Job $backendJob | ForEach-Object { Write-Host "[backend]  $_" -ForegroundColor DarkGray }

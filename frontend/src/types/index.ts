@@ -24,6 +24,7 @@ export interface BenchmarkRecord {
   optimization?: OptimizationLevel;
   verification_status: 'PASS' | 'OOM' | 'FAIL';
   recommended_variant?: string;
+  operation?: string;
 }
 
 export interface ProcessorProfile {

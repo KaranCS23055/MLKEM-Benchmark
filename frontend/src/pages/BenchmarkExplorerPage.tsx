@@ -1,12 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { BENCHMARK_DATASET } from '../data/mockData';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BenchmarkRecord } from '../types';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Database, Search, Download, ArrowUpDown, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Database, Search, Download, ArrowUpDown, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 
 export const BenchmarkExplorerPage: React.FC = () => {
+  const [records, setRecords] = useState<BenchmarkRecord[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMcu, setSelectedMcu] = useState<string>('ALL');
   const [selectedVariant, setSelectedVariant] = useState<string>('ALL');
@@ -14,33 +15,57 @@ export const BenchmarkExplorerPage: React.FC = () => {
   const [sortField, setSortField] = useState<keyof BenchmarkRecord>('mcu');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 15;
+
+  useEffect(() => {
+    fetch('/api/benchmarks?type=full')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRecords(data);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load benchmarks from API:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Unique MCUs for dropdown
+  const mcuOptions = useMemo(() => {
+    const set = new Set<string>();
+    records.forEach((r) => set.add(r.mcu));
+    return Array.from(set).sort();
+  }, [records]);
 
   // Filter dataset
   const filteredRecords = useMemo(() => {
-    return BENCHMARK_DATASET.filter((record) => {
-      const matchesSearch =
-        record.mcu.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.core.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.variant.toLowerCase().includes(searchQuery.toLowerCase());
+    return records
+      .filter((record) => {
+        const matchesSearch =
+          (record.mcu || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (record.core || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (record.variant || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesMcu = selectedMcu === 'ALL' || record.mcu === selectedMcu;
-      const matchesVariant = selectedVariant === 'ALL' || record.variant === selectedVariant;
-      const matchesStatus = selectedStatus === 'ALL' || record.verification_status === selectedStatus;
+        const matchesMcu = selectedMcu === 'ALL' || record.mcu === selectedMcu;
+        const matchesVariant = selectedVariant === 'ALL' || record.variant === selectedVariant;
+        const matchesStatus = selectedStatus === 'ALL' || record.verification_status === selectedStatus;
 
-      return matchesSearch && matchesMcu && matchesVariant && matchesStatus;
-    }).sort((a, b) => {
-      let valA = a[sortField] ?? '';
-      let valB = b[sortField] ?? '';
+        return matchesSearch && matchesMcu && matchesVariant && matchesStatus;
+      })
+      .sort((a, b) => {
+        let valA = a[sortField] ?? '';
+        let valB = b[sortField] ?? '';
 
-      if (typeof valA === 'string' && valA === 'OOM') valA = 99999999;
-      if (typeof valB === 'string' && valB === 'OOM') valB = 99999999;
+        if (typeof valA === 'string' && valA === 'OOM') valA = 99999999;
+        if (typeof valB === 'string' && valB === 'OOM') valB = 99999999;
 
-      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [searchQuery, selectedMcu, selectedVariant, selectedStatus, sortField, sortOrder]);
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+  }, [records, searchQuery, selectedMcu, selectedVariant, selectedStatus, sortField, sortOrder]);
 
   // Paginated records
   const paginatedRecords = useMemo(() => {
@@ -68,6 +93,7 @@ export const BenchmarkExplorerPage: React.FC = () => {
       'flash_kb',
       'ram_kb',
       'variant',
+      'operation',
       'keygen_us',
       'encap_us',
       'decap_us',
@@ -80,6 +106,7 @@ export const BenchmarkExplorerPage: React.FC = () => {
       r.flash_kb,
       r.ram_kb,
       r.variant,
+      r.operation || '',
       r.keygen_us,
       r.encap_us,
       r.decap_us,
@@ -111,7 +138,7 @@ export const BenchmarkExplorerPage: React.FC = () => {
             <div>
               <h1 className="text-xl font-bold text-slate-900 tracking-tight">Empirical Benchmark Data Explorer</h1>
               <p className="text-xs text-slate-500">
-                Search, filter, and inspect physical microsecond execution latencies, clock cycles, and SRAM bounds
+                Live empirical measurements fetched from API ({records.length.toLocaleString()} total benchmark records loaded)
               </p>
             </div>
           </div>
@@ -135,7 +162,7 @@ export const BenchmarkExplorerPage: React.FC = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search MCU, Core, Variant..."
+              placeholder="Search Environment, Architecture, Variant..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -154,12 +181,12 @@ export const BenchmarkExplorerPage: React.FC = () => {
             }}
             className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 font-medium outline-none"
           >
-            <option value="ALL">All Microcontrollers</option>
-            <option value="STM32F072RBT6">STM32F072RBT6 (Cortex-M0)</option>
-            <option value="STM32F407VGT6">STM32F407VGT6 (Cortex-M4)</option>
-            <option value="STM32H753ZIT6">STM32H753ZIT6 (Cortex-M7)</option>
-            <option value="nRF52840">nRF52840 (Cortex-M4)</option>
-            <option value="HiFive1">HiFive1 (RISC-V)</option>
+            <option value="ALL">All Hardware Environments</option>
+            {mcuOptions.map((mcu) => (
+              <option key={mcu} value={mcu}>
+                {mcu}
+              </option>
+            ))}
           </select>
 
           {/* Variant Filter */}
@@ -188,111 +215,102 @@ export const BenchmarkExplorerPage: React.FC = () => {
           >
             <option value="ALL">All Statuses</option>
             <option value="PASS">PASS (Execution Success)</option>
-            <option value="OOM">OOM (Out-Of-Memory)</option>
+            <option value="FAIL">FAIL</option>
           </select>
         </div>
       </Card>
 
       {/* Data Table */}
       <Card className="p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase font-semibold">
-              <tr>
-                <th
-                  onClick={() => handleSort('mcu')}
-                  className="py-3 px-3.5 cursor-pointer hover:text-slate-900"
-                >
-                  <div className="flex items-center gap-1">
-                    Processor <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                  </div>
-                </th>
-                <th className="py-3 px-3">Variant</th>
-                <th
-                  onClick={() => handleSort('keygen_us')}
-                  className="py-3 px-3 cursor-pointer hover:text-slate-900"
-                >
-                  <div className="flex items-center gap-1">
-                    KeyGen <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                  </div>
-                </th>
-                <th
-                  onClick={() => handleSort('encap_us')}
-                  className="py-3 px-3 cursor-pointer hover:text-slate-900"
-                >
-                  <div className="flex items-center gap-1">
-                    Encapsulation <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                  </div>
-                </th>
-                <th
-                  onClick={() => handleSort('decap_us')}
-                  className="py-3 px-3 cursor-pointer hover:text-slate-900"
-                >
-                  <div className="flex items-center gap-1">
-                    Decapsulation <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                  </div>
-                </th>
-                <th className="py-3 px-3">SRAM</th>
-                <th className="py-3 px-3">Flash</th>
-                <th className="py-3 px-3">CPU Cycles</th>
-                <th className="py-3 px-3">Energy (µJ)</th>
-                <th className="py-3 px-3.5">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {paginatedRecords.map((row) => (
-                <tr key={row.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="py-3 px-3.5">
-                    <span className="font-bold text-slate-900 block font-mono">{row.mcu}</span>
-                    <span className="text-[10px] text-slate-500">
-                      {row.core} @ {row.clock_mhz} MHz
-                    </span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <Badge variant="cyan" size="sm">
-                      {row.variant}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-3 font-mono text-slate-800">
-                    {row.keygen_us === 'OOM' ? (
-                      <span className="text-rose-700 font-bold">OOM</span>
-                    ) : (
-                      `${row.keygen_us.toLocaleString()} µs`
-                    )}
-                  </td>
-                  <td className="py-3 px-3 font-mono text-slate-800">
-                    {row.encap_us === 'OOM' ? (
-                      <span className="text-rose-700 font-bold">OOM</span>
-                    ) : (
-                      `${row.encap_us.toLocaleString()} µs`
-                    )}
-                  </td>
-                  <td className="py-3 px-3 font-mono text-slate-800">
-                    {row.decap_us === 'OOM' ? (
-                      <span className="text-rose-700 font-bold">OOM</span>
-                    ) : (
-                      `${row.decap_us.toLocaleString()} µs`
-                    )}
-                  </td>
-                  <td className="py-3 px-3 text-slate-700 font-mono">{row.ram_kb} KB</td>
-                  <td className="py-3 px-3 text-slate-600 font-mono">{row.flash_kb} KB</td>
-                  <td className="py-3 px-3 text-slate-600 font-mono text-[11px]">
-                    {row.encap_cycles === 'OOM' ? 'OOM' : row.encap_cycles.toLocaleString()}
-                  </td>
-                  <td className="py-3 px-3 text-slate-800 font-mono font-medium">
-                    {row.energy_uj ? `${row.energy_uj} µJ` : '-'}
-                  </td>
-                  <td className="py-3 px-3.5">
-                    <Badge variant={row.verification_status === 'PASS' ? 'success' : 'error'} size="sm">
-                      {row.verification_status === 'PASS' ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
-                      {row.verification_status}
-                    </Badge>
-                  </td>
+        {loading ? (
+          <div className="flex items-center justify-center p-12 text-slate-500 gap-2 text-sm">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Loading benchmark dataset from backend API...
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase font-semibold">
+                <tr>
+                  <th
+                    onClick={() => handleSort('mcu')}
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-900"
+                  >
+                    <div className="flex items-center gap-1">
+                      Target / Environment <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th className="py-3 px-3">Variant</th>
+                  <th className="py-3 px-3">Operation</th>
+                  <th
+                    onClick={() => handleSort('keygen_us')}
+                    className="py-3 px-3 cursor-pointer hover:text-slate-900"
+                  >
+                    <div className="flex items-center gap-1">
+                      KeyGen (µs) <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('encap_us')}
+                    className="py-3 px-3 cursor-pointer hover:text-slate-900"
+                  >
+                    <div className="flex items-center gap-1">
+                      Encapsulation (µs) <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('decap_us')}
+                    className="py-3 px-3 cursor-pointer hover:text-slate-900"
+                  >
+                    <div className="flex items-center gap-1">
+                      Decapsulation (µs) <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th className="py-3 px-3">RAM</th>
+                  <th className="py-3 px-3.5">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {paginatedRecords.map((row) => (
+                  <tr key={row.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-3.5">
+                      <span className="font-bold text-slate-900 block font-mono">{row.mcu}</span>
+                      <span className="text-[10px] text-slate-500">
+                        {row.core}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <Badge variant="cyan" size="sm">
+                        {row.variant}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-3">
+                      <Badge variant="cyan" size="sm">
+                        {row.operation || 'encapsulation'}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-800">
+                      {row.keygen_us ? `${row.keygen_us.toLocaleString()} µs` : '-'}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-800">
+                      {row.encap_us ? `${row.encap_us.toLocaleString()} µs` : '-'}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-800">
+                      {row.decap_us ? `${row.decap_us.toLocaleString()} µs` : '-'}
+                    </td>
+                    <td className="py-3 px-3 text-slate-700 font-mono">{row.ram_kb} KB</td>
+                    <td className="py-3 px-3.5">
+                      <Badge variant={row.verification_status === 'PASS' ? 'success' : 'error'} size="sm">
+                        {row.verification_status === 'PASS' ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                        {row.verification_status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Pagination Controls */}
         <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
