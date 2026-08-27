@@ -50,9 +50,9 @@ export const SettingsPage: React.FC = () => {
                     : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <div className="font-bold text-xs mb-1">Local Benchmark Dataset (.csv)</div>
+                  <div className="font-bold text-xs mb-1">Processed Phase 11 Dataset (.csv)</div>
                 <div className="text-[11px] opacity-80 leading-snug">
-                  Uses physical Renode benchmark simulation records from dataset/benchmark.csv.
+                  Uses validated observations from data/processed/phase11_statistics/observations.csv.
                 </div>
               </button>
 

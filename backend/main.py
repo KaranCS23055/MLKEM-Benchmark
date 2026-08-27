@@ -2,6 +2,7 @@
 
 import csv
 import json
+import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
@@ -39,12 +40,66 @@ app.add_middleware(
 )
 
 SETTINGS_DB = {
-    "datasetSource": "data/raw",
+    "datasetSource": "data/processed/phase11_statistics/observations.csv",
     "themePreference": "system",
     "cacheEnabled": True,
     "logLevel": "INFO",
     "maxLatencyThresholdUs": 10000,
 }
+
+
+def _dataset_path() -> Path:
+    root_dir = Path(__file__).resolve().parent.parent
+    configured_path = os.getenv("MLKEM_DATASET_PATH")
+    return Path(configured_path) if configured_path else root_dir / "data" / "processed" / "phase11_statistics" / "observations.csv"
+
+
+def _load_dataset() -> List[Dict[str, str]]:
+    dataset_path = _dataset_path()
+    if not dataset_path.exists():
+        raise HTTPException(status_code=404, detail=f"Benchmark dataset not found: {dataset_path}")
+    try:
+        with dataset_path.open(mode="r", newline="", encoding="utf-8") as handle:
+            return list(csv.DictReader(handle))
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to load benchmark dataset: {exc}") from exc
+
+
+def _parse_number(value: Optional[str], target_type=float) -> float | int:
+    if value in (None, "", "OOM", "N/A"):
+        return 0
+    try:
+        return target_type(value)
+    except ValueError:
+        return 0
+
+
+def _benchmark_record(row: Dict[str, str], index: int) -> Dict[str, Any]:
+    ns_val = _parse_number(row.get("execution_time_ns"), float)
+    mem_bytes = _parse_number(row.get("memory_bytes"), int)
+    operation = row.get("operation", "encapsulation")
+    us_val = round(float(ns_val) / 1000.0, 2) if ns_val else 0.0
+    return {
+        "id": f"{row.get('experiment_id')}_{row.get('iteration')}_{index}",
+        "mcu": row.get("processor") or row.get("environment", "Generic Target"),
+        "core": row.get("architecture", "unknown"),
+        "clock_mhz": None,
+        "flash_kb": None,
+        "ram_kb": round(int(mem_bytes) / 1024.0, 1) if mem_bytes else 0.0,
+        "variant": row.get("mlkem_variant", "ML-KEM-768"),
+        "operation": operation,
+        "optimization": row.get("optimization_flags", "unknown"),
+        "keygen_cycles": int(ns_val * 2.0) if operation == "keygen" else 0,
+        "encap_cycles": int(ns_val * 2.0) if operation == "encapsulation" else 0,
+        "decap_cycles": int(ns_val * 2.0) if operation == "decapsulation" else 0,
+        "keygen_us": us_val if operation == "keygen" else 0.0,
+        "encap_us": us_val if operation == "encapsulation" else 0.0,
+        "decap_us": us_val if operation == "decapsulation" else 0.0,
+        "execution_time_ns": ns_val,
+        "verification_status": "PASS" if row.get("success", "True").lower() == "true" else "FAIL",
+        "environment": row.get("environment", "unknown"),
+        "measurement_type": row.get("normalized_measurement_type", row.get("measurement_type", "unknown")),
+    }
 
 
 @app.get("/", include_in_schema=False)
@@ -70,63 +125,9 @@ async def get_recommendation(inputs: RecommendationFormInputs):
 @app.get("/api/benchmarks", tags=["Benchmarks"])
 @app.get("/benchmarks", include_in_schema=False)
 async def get_benchmarks(type: Optional[str] = Query("baseline", description="'baseline' or 'full'")):
-    root_dir = Path(__file__).resolve().parent.parent
-    raw_dir = root_dir / "data" / "raw"
-
-    if not raw_dir.exists():
-        raw_dir = root_dir / "dataset"
-
-    csv_files = sorted(raw_dir.glob("*.csv"))
-    if not csv_files:
-        raise HTTPException(status_code=404, detail="No raw benchmark CSV files found in data/raw/.")
-
-    records: List[Dict[str, Any]] = []
-    try:
-        for csv_path in csv_files:
-            with csv_path.open(mode="r", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    def parse_val(val, target_type=float):
-                        if val is None or val == "" or val == "OOM" or val == "N/A":
-                            return 0
-                        try:
-                            return target_type(val)
-                        except ValueError:
-                            return val
-
-                    ns_val = parse_val(row.get("execution_time_ns"), float)
-                    us_val = round(ns_val / 1000.0, 2) if ns_val else 0.0
-
-                    mem_bytes = parse_val(row.get("memory_bytes"), int)
-                    ram_kb = round(mem_bytes / 1024.0, 1) if mem_bytes else 16.0
-
-                    record = {
-                        "id": f"{row.get('environment')}_{row.get('mlkem_variant')}_{row.get('operation')}_{row.get('iteration')}",
-                        "mcu": row.get("processor") or row.get("environment", "Generic Target"),
-                        "core": row.get("architecture", "x86_64"),
-                        "clock_mhz": parse_val(row.get("ram_mb"), int) or 100,
-                        "flash_kb": 128,
-                        "ram_kb": ram_kb,
-                        "variant": row.get("mlkem_variant", "ML-KEM-768"),
-                        "operation": row.get("operation", "encapsulation"),
-                        "optimization": row.get("optimization_flags", "-O2"),
-                        "keygen_cycles": int(ns_val * 2.0) if row.get("operation") == "keygen" else 0,
-                        "encap_cycles": int(ns_val * 2.0) if row.get("operation") == "encapsulation" else 0,
-                        "decap_cycles": int(ns_val * 2.0) if row.get("operation") == "decapsulation" else 0,
-                        "keygen_us": us_val if row.get("operation") == "keygen" else 0.0,
-                        "encap_us": us_val if row.get("operation") == "encapsulation" else 0.0,
-                        "decap_us": us_val if row.get("operation") == "decapsulation" else 0.0,
-                        "execution_time_ns": ns_val,
-                        "verification_status": "PASS" if str(row.get("success", "True")).lower() == "true" else "FAIL",
-                    }
-                    records.append(record)
-                    if len(records) >= 1500 and type == "baseline":
-                        break
-            if len(records) >= 1500 and type == "baseline":
-                break
-        return records
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load benchmark dataset: {str(e)}")
+    rows = _load_dataset()
+    records = [_benchmark_record(row, index) for index, row in enumerate(rows)]
+    return records[:1500] if type == "baseline" else records
 
 
 @app.get("/api/processors", tags=["Hardware Profiles"])
@@ -270,15 +271,18 @@ async def get_profiles():
 @app.get("/api/analytics", tags=["Analytics"])
 @app.get("/analytics", include_in_schema=False)
 async def get_analytics():
+    rows = _load_dataset()
+    successful_rows = [row for row in rows if row.get("success", "").lower() == "true"]
+    encapsulations = [float(_parse_number(row.get("execution_time_ns"))) for row in successful_rows if row.get("operation") == "encapsulation"]
     return {
-        "totalBenchmarks": 45000,
-        "totalPasses": 45000,
-        "totalOOMs": 0,
-        "passRatePercent": 100.0,
-        "avgEncapLatencyUs": 42.5,
-        "supportedProcessors": 5,
-        "mlkemVariants": 3,
-        "aiAccuracyPercent": 98.4,
+        "totalBenchmarks": len(rows),
+        "totalPasses": len(successful_rows),
+        "totalOOMs": sum(row.get("error_message") == "OOM" for row in rows),
+        "passRatePercent": round(len(successful_rows) / len(rows) * 100, 2) if rows else 0.0,
+        "avgEncapLatencyUs": round(sum(encapsulations) / len(encapsulations) / 1000, 2) if encapsulations else 0.0,
+        "supportedProcessors": len({row.get("environment") for row in rows}),
+        "mlkemVariants": len({row.get("mlkem_variant") for row in rows}),
+        "aiAccuracyPercent": 86.67,
     }
 
 

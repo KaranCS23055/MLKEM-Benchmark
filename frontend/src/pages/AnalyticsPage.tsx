@@ -72,7 +72,7 @@ export const AnalyticsPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [benchRes, analyticsRes] = await Promise.all([
-          fetch('/api/benchmarks?type=baseline'),
+          fetch('/api/benchmarks?type=full'),
           fetch('/api/analytics'),
         ]);
         if (benchRes.ok) setRows(await benchRes.json());
@@ -111,7 +111,7 @@ export const AnalyticsPage: React.FC = () => {
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '11px', color: '#0f172a',
   };
 
-  const stats = analytics ?? { totalBenchmarks: 45000, totalPasses: 45000, totalOOMs: 0, passRatePercent: 100, avgEncapLatencyUs: 42.5, aiAccuracyPercent: 86.7 };
+  const stats = analytics ?? { totalBenchmarks: 45000, totalPasses: 45000, totalOOMs: 0, passRatePercent: 100, avgEncapLatencyUs: 168.47, aiAccuracyPercent: 86.67 };
 
   if (loading) {
     return (
@@ -269,7 +269,7 @@ export const AnalyticsPage: React.FC = () => {
             <div className="space-y-3 text-xs text-slate-700">
               {[
                 ['Algorithm',        'Random Forest Classifier (scikit-learn)'],
-                ['Training Data',    '45,000 empirical benchmark rows'],
+                ['Training Data',    '45,000 observations → 90 derived candidates'],
                 ['Validation',       '5-fold GroupKFold (env-stratified)'],
                 ['Test Accuracy',    '86.67%'],
                 ['Weighted F1',      '0.786'],
