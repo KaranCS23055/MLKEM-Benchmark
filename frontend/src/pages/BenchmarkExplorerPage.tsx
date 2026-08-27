@@ -138,7 +138,7 @@ export const BenchmarkExplorerPage: React.FC = () => {
             <div>
               <h1 className="text-xl font-bold text-slate-900 tracking-tight">Empirical Benchmark Data Explorer</h1>
               <p className="text-xs text-slate-500">
-                Live empirical measurements fetched from API ({records.length.toLocaleString()} total benchmark records loaded)
+                Normalized Phase 11 observations fetched from API ({records.length.toLocaleString()} records loaded)
               </p>
             </div>
           </div>

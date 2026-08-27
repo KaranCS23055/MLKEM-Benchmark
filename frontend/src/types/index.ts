@@ -6,8 +6,8 @@ export interface BenchmarkRecord {
   id: string;
   mcu: string;
   core: string;
-  clock_mhz: number;
-  flash_kb: number;
+  clock_mhz?: number | null;
+  flash_kb?: number | null;
   ram_kb: number;
   latency_budget_us?: number;
   variant: MLKEMVariant;

@@ -58,29 +58,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Container */}
       <aside
         className={`
-          fixed lg:static top-0 left-0 bottom-0 z-50
-          w-64 bg-slate-900 text-slate-300 border-r border-slate-800
+          fixed inset-y-0 left-0 z-50 h-screen overflow-hidden
+          w-64 bg-[#17324D] text-slate-200 border-r border-[#28506F]
           flex flex-col justify-between transition-transform duration-200 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Brand Header */}
         <div>
-          <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-            <div className="p-2 rounded bg-slate-800 border border-slate-700 text-white">
-              <Shield className="w-5 h-5 text-blue-400" />
+          <div className="p-5 border-b border-[#28506F] flex items-center gap-3">
+            <div className="p-2 rounded bg-[#244A68] border border-[#3A6688] text-white">
+              <Shield className="w-5 h-5 text-cyan-300" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-white tracking-tight font-mono">
                 ML-KEM BENCHMARK
               </h1>
-              <p className="text-[11px] text-slate-400">Post-Quantum IoT Lab</p>
+              <p className="text-[11px] text-sky-200/70">Post-Quantum IoT Lab</p>
             </div>
           </div>
 
           {/* Navigation Items */}
           <nav className="p-3 space-y-1">
-            <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+              <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-sky-200/70 tracking-wider">
               Research Console
             </div>
             {navItems.map((item) => {
@@ -97,12 +97,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     transition-colors duration-150 cursor-pointer
                     ${
                       isActive
-                        ? 'bg-slate-800 text-white font-semibold border-l-2 border-blue-500'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                        ? 'bg-[#2A607D] text-white font-semibold border-l-2 border-cyan-300'
+                        : 'text-sky-100/70 hover:text-white hover:bg-[#244A68]'
                     }
                   `}
                 >
-                  <span className={isActive ? 'text-blue-400' : 'text-slate-400'}>
+                  <span className={isActive ? 'text-cyan-300' : 'text-sky-200/70'}>
                     {item.icon}
                   </span>
                   <span>{item.label}</span>
@@ -113,12 +113,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Sidebar Footer Academic Tag */}
-        <div className="p-3 m-3 rounded bg-slate-800/60 border border-slate-800 text-xs">
-          <div className="flex items-center gap-2 mb-1 text-slate-300 font-medium text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+        <div className="p-3 m-3 rounded bg-[#244A68]/70 border border-[#28506F] text-xs">
+          <div className="flex items-center gap-2 mb-1 text-sky-100 font-medium text-[11px]">
+            <span className="w-2 h-2 rounded-full bg-lime-300" />
             Renode Simulation Pipeline
           </div>
-          <p className="text-[10px] text-slate-400 leading-snug">
+          <p className="text-[10px] text-sky-100/65 leading-snug">
             NIST FIPS 203 Cryptographic Benchmarking Suite
           </p>
         </div>

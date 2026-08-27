@@ -479,7 +479,7 @@ export const DASHBOARD_STATS: DashboardStats = {
   processorsSupported: 15,
   mlkemVariantsCount: 3,
   avgExecutionTimeUs: 7842,
-  aiAccuracyPercent: 98.4,
+  aiAccuracyPercent: 86.67,
   totalPasses: 1048,
   totalOOMs: 152
 };

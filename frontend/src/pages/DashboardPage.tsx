@@ -53,7 +53,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       try {
         const [analyticsRes, benchmarksRes, processorsRes] = await Promise.all([
           fetch('/api/analytics'),
-          fetch('/api/benchmarks?type=baseline'),
+          fetch('/api/benchmarks?type=full'),
           fetch('/api/processors'),
         ]);
         if (analyticsRes.ok)  setAnalytics(await analyticsRes.json());
@@ -73,7 +73,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     totalPasses: 45000,
     totalOOMs: 0,
     passRatePercent: 100,
-    avgEncapLatencyUs: 42.5,
+    avgEncapLatencyUs: 168.47,
     supportedProcessors: 5,
     mlkemVariants: 3,
     aiAccuracyPercent: 86.7,
@@ -121,7 +121,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
               Random Forest ML surrogate model.
             </p>
             <div className="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-500">
-              <span className="text-emerald-600 font-bold">ML Model:</span> Random Forest · Accuracy: 86.7% · Grouped F1: 0.786
+              <span className="text-emerald-600 font-bold">ML Model:</span> Random Forest · Accuracy: 86.67% · Grouped F1: 0.786
             </div>
           </div>
         </div>
@@ -173,11 +173,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                   <Activity className="w-4 h-4 text-slate-700" /> Recent Benchmark Execution Records
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Live data from <code>data/raw/</code> via <code>/api/benchmarks</code>
+                  Live normalized observations from <code>data/processed/phase11_statistics/</code>
                 </p>
               </div>
               <button onClick={() => onNavigate('benchmarks')} className="text-xs text-slate-800 hover:text-black font-semibold flex items-center gap-1 cursor-pointer">
-                View All 45,000 Records <ArrowRight className="w-3.5 h-3.5" />
+                View All {stats.totalBenchmarks.toLocaleString()} Records <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -261,7 +261,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         <h3 className="text-sm uppercase font-semibold text-slate-500 tracking-wider mb-3">Quick Navigation</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { page: 'benchmarks' as PageId, icon: <Database className="w-5 h-5" />, title: 'Benchmark Explorer', desc: 'Filter, sort, and export 45,000 measurements' },
+            { page: 'benchmarks' as PageId, icon: <Database className="w-5 h-5" />, title: 'Benchmark Explorer', desc: `Filter, sort, and export ${stats.totalBenchmarks.toLocaleString()} measurements` },
             { page: 'analytics'  as PageId, icon: <BarChart3 className="w-5 h-5" />, title: 'Analytics & Graphs', desc: 'Latency, cycles, SRAM, and energy charts' },
             { page: 'variants'   as PageId, icon: <Layers className="w-5 h-5" />, title: 'ML-KEM Variants', desc: 'Compare ML-KEM-512, 768, 1024 specs' },
             { page: 'about'      as PageId, icon: <Info className="w-5 h-5" />, title: 'About Project', desc: 'Architecture, tech stack & team members' },
