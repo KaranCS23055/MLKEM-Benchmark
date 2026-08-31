@@ -71,6 +71,36 @@ def _build_result(
     inputs: RecommendationFormInputs,
     model_used: str,
 ) -> RecommendationResult:
+    if chosen_variant == "UNSUPPORTED":
+        return RecommendationResult(
+            recommendedVariant="UNSUPPORTED",
+            confidence=round(confidence, 1),
+            reason=reason,
+            estimatedKeygenUs=0,
+            estimatedEncapUs=0,
+            estimatedDecapUs=0,
+            estimatedRamKb=0,
+            ramUtilizationPercent=100,
+            latencyCompliance="EXCEEDED",
+            comparisonBadges=[
+                ComparisonBadge(
+                    label="Security Level",
+                    value="Unsupported (RAM < 16 KB)",
+                    type="error",
+                ),
+                ComparisonBadge(
+                    label="SRAM Footprint",
+                    value=f"Insufficient ({inputs.ram} KB < 16 KB)",
+                    type="error",
+                ),
+                ComparisonBadge(
+                    label="Inference Engine",
+                    value=model_used,
+                    type="info",
+                ),
+            ],
+        )
+
     est_kg, est_enc, est_dec = _latency_estimate(
         chosen_variant, inputs.frequency, inputs.optimization, inputs.cpuLoad
     )
@@ -125,9 +155,20 @@ def _ml_inference(inputs: RecommendationFormInputs) -> RecommendationResult | No
     if _PIPELINE is None:
         return None
     try:
+        if inputs.ram < 16:
+            return _build_result(
+                "UNSUPPORTED",
+                99.8,
+                f"Target device has only {inputs.ram} KB SRAM — insufficient for any ML-KEM variant (minimum 16 KB SRAM required for ML-KEM-512 stack buffers).",
+                inputs,
+                "ML Random Forest (Phase 11)",
+            )
+
         import pandas as pd
-        # Map inputs to the 3 ML-KEM variants and score each
+        VARIANT_ORDER = {"ML-KEM-512": 1, "ML-KEM-768": 2, "ML-KEM-1024": 3}
         sec_req = {"Level 1": 1, "Level 3": 2, "Level 5": 3}.get(inputs.securityLevel, 2)
+        min_variant = _SEC_LEVEL.get(inputs.securityLevel, "ML-KEM-512")
+        min_var_order = VARIANT_ORDER[min_variant]
         latency_sens = min(5, max(1, round(5 - (inputs.latencyBudget / 10000) * 4)))
         mem_level = min(5, max(1, round(5 - (inputs.ram / 1000))))
 
@@ -149,20 +190,42 @@ def _ml_inference(inputs: RecommendationFormInputs) -> RecommendationResult | No
                 "architecture":             "x86_64",
                 "measurement_type":         "NATIVE_SOFTWARE",
                 "mlkem_variant":            v,
-                "minimum_variant":          _SEC_LEVEL.get(inputs.securityLevel, "ML-KEM-512"),
+                "minimum_variant":          min_variant,
             })
 
         df = pd.DataFrame(rows)
         proba = _PIPELINE.predict_proba(df)[:, 1]  # probability of recommended=True
-        best_idx = int(proba.argmax())
+
+        ram_eligible = [i for i, v in enumerate(variants) if _RAM_REQ[v] <= inputs.ram]
+        if not ram_eligible:
+            return _build_result(
+                "UNSUPPORTED",
+                99.8,
+                f"Target device has only {inputs.ram} KB SRAM — insufficient for any ML-KEM variant.",
+                inputs,
+                "ML Random Forest (Phase 11)",
+            )
+
+        sec_eligible = [i for i in ram_eligible if VARIANT_ORDER[variants[i]] >= min_var_order]
+        eligible = sec_eligible if sec_eligible else ram_eligible
+
+        best_idx = max(eligible, key=lambda i: proba[i])
         chosen = variants[best_idx]
         confidence = round(float(proba[best_idx]) * 100, 1)
-        reason = (
-            f"Random Forest surrogate model (Accuracy 86.7%, GroupKFold F1 0.786) "
-            f"selected {chosen} with {confidence}% confidence based on your hardware "
-            f"profile ({inputs.ram} KB SRAM, {inputs.frequency} MHz, {inputs.securityLevel} security), "
-            f"measured benchmark aggregates, and application profile policy."
-        )
+
+        if not sec_eligible:
+            reason = (
+                f"Random Forest surrogate model selected {chosen} with {confidence}% confidence "
+                f"as the highest-security variant fitting in available RAM ({inputs.ram} KB SRAM). "
+                f"Note: {min_variant} requested for {inputs.securityLevel} exceeds available RAM."
+            )
+        else:
+            reason = (
+                f"Random Forest surrogate model (Accuracy 86.7%, GroupKFold F1 0.786) "
+                f"selected {chosen} with {confidence}% confidence based on your hardware "
+                f"profile ({inputs.ram} KB SRAM, {inputs.frequency} MHz, {inputs.securityLevel} security), "
+                f"measured benchmark aggregates, and application profile policy."
+            )
         return _build_result(chosen, confidence, reason, inputs, "ML Random Forest (Phase 11)")
     except Exception as exc:
         logger.warning("ML inference failed (%s), falling back to rule-based engine.", exc)

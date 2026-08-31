@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-08-13T18:39:55.486221+00:00",
+  "created_at_utc": "2026-08-31T07:58:02.619852+00:00",
   "provenance": "DERIVED recommendation policy model; not a universal device-performance predictor.",
-  "candidate_source": "C:\\Users\\abhay\\OneDrive\\Desktop\\mlkemnew\\data\\processed\\phase11_training\\recommendation_candidates.csv",
+  "candidate_source": "C:\\Users\\KARAN PRAJAPATI\\OneDrive\\Desktop\\MLKEM-Benchmark\\data\\processed\\phase11_training\\recommendation_candidates.csv",
   "candidate_count": 90,
   "positive_recommendation_count": 30,
   "execution_configuration_count": 5,
@@ -94,7 +94,7 @@
       ]
     ]
   },
-  "artifact": "C:\\Users\\abhay\\OneDrive\\Desktop\\mlkemnew\\ml\\artifacts\\recommendation_policy_model.joblib",
+  "artifact": "C:\\Users\\KARAN PRAJAPATI\\OneDrive\\Desktop\\MLKEM-Benchmark\\ml\\artifacts\\recommendation_policy_model.joblib",
   "limitations": [
     "Labels are derived from the documented project policy, not independent user-choice observations.",
     "Only five execution configurations are available; evaluation uncertainty is high.",

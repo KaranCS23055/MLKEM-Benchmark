@@ -54,4 +54,26 @@ def test_ai_recommendation_unsupported_ram():
         latencyBudget=10000,
     )
     result = run_ai_recommendation(inputs)
-    assert result.recommendedVariant in ["UNSUPPORTED", "ML-KEM-512", "ML-KEM-768"]
+    assert result.recommendedVariant == "UNSUPPORTED"
+    assert result.estimatedKeygenUs == 0
+    assert result.estimatedEncapUs == 0
+    assert result.estimatedDecapUs == 0
+    assert result.estimatedRamKb == 0
+    assert result.latencyCompliance == "EXCEEDED"
+
+
+def test_ai_recommendation_ram_constraint_fallback():
+    inputs = RecommendationFormInputs(
+        mcu="Constrained-Target",
+        frequency=100,
+        ram=24,  # Fits 512 (16KB) and 768 (20KB), but NOT 1024 (28KB)
+        flash=512,
+        securityLevel="Level 5",  # Wants 1024 minimum
+        optimization="O2",
+        cpuLoad=10,
+        latencyBudget=20000,
+    )
+    result = run_ai_recommendation(inputs)
+    assert result.recommendedVariant == "ML-KEM-768"
+    assert result.estimatedRamKb == 20
+    assert "exceeds available RAM" in result.reason

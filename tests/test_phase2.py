@@ -36,9 +36,12 @@ class Phase2Tests(unittest.TestCase):
 
     def test_shared_secret_verification_all_variants(self) -> None:
         for kem in (ml_kem_512, ml_kem_768, ml_kem_1024):
-            public_key, secret_key = kem.generate_keypair()
-            ciphertext, shared_secret = kem.encrypt(public_key)
-            self.assertEqual(shared_secret, kem.decrypt(secret_key, ciphertext))
+            keygen_fn = getattr(kem, "generate_keypair", getattr(kem, "keygen", None))
+            encrypt_fn = getattr(kem, "encrypt", getattr(kem, "encaps", None))
+            decrypt_fn = getattr(kem, "decrypt", getattr(kem, "decaps", None))
+            public_key, secret_key = keygen_fn()
+            ciphertext, shared_secret = encrypt_fn(public_key)
+            self.assertEqual(shared_secret, decrypt_fn(secret_key, ciphertext))
 
     def test_schema_validation_and_statistics(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

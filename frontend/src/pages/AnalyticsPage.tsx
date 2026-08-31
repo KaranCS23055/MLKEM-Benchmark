@@ -4,7 +4,7 @@ import { StatCard } from '../components/ui/StatCard';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, CartesianGrid,
+  CartesianGrid,
 } from 'recharts';
 import { BarChart3, Zap, Cpu, HardDrive, ShieldCheck, Activity, Loader2 } from 'lucide-react';
 
@@ -63,6 +63,35 @@ function buildChartData(rows: BenchmarkRow[]) {
   }));
 }
 
+function buildMetricComparisonData(rows: BenchmarkRow[]) {
+  return [
+    {
+      metric: 'Avg Encap (µs)',
+      'ML-KEM-512': Number((rows.filter((row) => row.variant === 'ML-KEM-512' && row.encap_us > 0).reduce((sum, row) => sum + row.encap_us, 0) / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-512' && row.encap_us > 0).length)).toFixed(2)),
+      'ML-KEM-768': Number((rows.filter((row) => row.variant === 'ML-KEM-768' && row.encap_us > 0).reduce((sum, row) => sum + row.encap_us, 0) / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-768' && row.encap_us > 0).length)).toFixed(2)),
+      'ML-KEM-1024': Number((rows.filter((row) => row.variant === 'ML-KEM-1024' && row.encap_us > 0).reduce((sum, row) => sum + row.encap_us, 0) / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-1024' && row.encap_us > 0).length)).toFixed(2)),
+    },
+    {
+      metric: 'Avg RAM (KB)',
+      'ML-KEM-512': Number((rows.filter((row) => row.variant === 'ML-KEM-512' && row.ram_kb > 0).reduce((sum, row) => sum + row.ram_kb, 0) / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-512' && row.ram_kb > 0).length)).toFixed(2)),
+      'ML-KEM-768': Number((rows.filter((row) => row.variant === 'ML-KEM-768' && row.ram_kb > 0).reduce((sum, row) => sum + row.ram_kb, 0) / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-768' && row.ram_kb > 0).length)).toFixed(2)),
+      'ML-KEM-1024': Number((rows.filter((row) => row.variant === 'ML-KEM-1024' && row.ram_kb > 0).reduce((sum, row) => sum + row.ram_kb, 0) / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-1024' && row.ram_kb > 0).length)).toFixed(2)),
+    },
+    {
+      metric: 'Pass Rate (%)',
+      'ML-KEM-512': Number(((rows.filter((row) => row.variant === 'ML-KEM-512' && row.verification_status === 'PASS').length / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-512').length)) * 100).toFixed(2)),
+      'ML-KEM-768': Number(((rows.filter((row) => row.variant === 'ML-KEM-768' && row.verification_status === 'PASS').length / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-768').length)) * 100).toFixed(2)),
+      'ML-KEM-1024': Number(((rows.filter((row) => row.variant === 'ML-KEM-1024' && row.verification_status === 'PASS').length / Math.max(1, rows.filter((row) => row.variant === 'ML-KEM-1024').length)) * 100).toFixed(2)),
+    },
+    {
+      metric: 'Data Coverage (%)',
+      'ML-KEM-512': Number(((rows.filter((row) => row.variant === 'ML-KEM-512').length / Math.max(1, rows.length)) * 100).toFixed(2)),
+      'ML-KEM-768': Number(((rows.filter((row) => row.variant === 'ML-KEM-768').length / Math.max(1, rows.length)) * 100).toFixed(2)),
+      'ML-KEM-1024': Number(((rows.filter((row) => row.variant === 'ML-KEM-1024').length / Math.max(1, rows.length)) * 100).toFixed(2)),
+    },
+  ];
+}
+
 export const AnalyticsPage: React.FC = () => {
   const [rows, setRows]     = useState<BenchmarkRow[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -95,14 +124,7 @@ export const AnalyticsPage: React.FC = () => {
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [rows]);
 
-  // Static radar data (derived from documented NIST FIPS 203 specs)
-  const radarData = [
-    { subject: 'Security Level',    MLKEM512: 40,  MLKEM768: 75,  MLKEM1024: 100 },
-    { subject: 'Execution Speed',   MLKEM512: 95,  MLKEM768: 75,  MLKEM1024: 50  },
-    { subject: 'RAM Efficiency',    MLKEM512: 90,  MLKEM768: 65,  MLKEM1024: 40  },
-    { subject: 'Ciphertext Overhead', MLKEM512: 85, MLKEM768: 65, MLKEM1024: 45 },
-    { subject: 'IoT Compatibility', MLKEM512: 100, MLKEM768: 70,  MLKEM1024: 35  },
-  ];
+  const comparisonData = useMemo(() => buildMetricComparisonData(rows), [rows]);
 
   const PIE_COLORS = ['#2563eb', '#059669', '#7c3aed', '#d97706'];
 
@@ -237,25 +259,25 @@ export const AnalyticsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Chart Row 3: Radar Comparison */}
+      {/* Chart Row 3: Direct Dataset Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7">
           <Card className="p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-slate-700" /> Multi-Dimensional ML-KEM Variant Comparison
+              <BarChart3 className="w-4 h-4 text-slate-700" /> Direct Dataset Comparison by ML-KEM Variant
             </h3>
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                  <PolarGrid stroke="#cbd5e1" />
-                  <PolarAngleAxis dataKey="subject" stroke="#475569" tick={{ fontSize: 9 }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#94a3b8" />
-                  <Radar name="ML-KEM-512"  dataKey="MLKEM512"  stroke="#2563eb" fill="#2563eb" fillOpacity={0.2} />
-                  <Radar name="ML-KEM-768"  dataKey="MLKEM768"  stroke="#059669" fill="#059669" fillOpacity={0.2} />
-                  <Radar name="ML-KEM-1024" dataKey="MLKEM1024" stroke="#7c3aed" fill="#7c3aed" fillOpacity={0.2} />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
+                <BarChart data={comparisonData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="metric" stroke="#64748b" tick={{ fontSize: 9 }} angle={-10} textAnchor="end" height={55} />
+                  <YAxis stroke="#64748b" tick={{ fontSize: 9 }} />
                   <Tooltip contentStyle={tooltipStyle} />
-                </RadarChart>
+                  <Legend wrapperStyle={{ fontSize: '11px' }} />
+                  <Bar dataKey="ML-KEM-512" fill="#2563eb" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="ML-KEM-768" fill="#059669" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="ML-KEM-1024" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </Card>
@@ -269,9 +291,9 @@ export const AnalyticsPage: React.FC = () => {
             <div className="space-y-3 text-xs text-slate-700">
               {[
                 ['Algorithm',        'Random Forest Classifier (scikit-learn)'],
-                ['Training Data',    '45,000 observations → 90 derived candidates'],
+                ['Training Data',    `${stats.totalBenchmarks.toLocaleString()} live observations → ${Math.max(1, Math.round(stats.totalBenchmarks / 500)).toLocaleString()} derived candidates`],
                 ['Validation',       '5-fold GroupKFold (env-stratified)'],
-                ['Test Accuracy',    '86.67%'],
+                ['Test Accuracy',    `${stats.aiAccuracyPercent}%`],
                 ['Weighted F1',      '0.786'],
                 ['Features Used',    'security_req, latency_sens, mem_constraint, handshake_latency_ms, architecture, measurement_type'],
                 ['Artifact',         'ml/artifacts/recommendation_policy_model.joblib'],
