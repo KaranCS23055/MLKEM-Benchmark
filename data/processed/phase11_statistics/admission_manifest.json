@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-08-13T17:34:10.637491+00:00",
+  "created_at_utc": "2026-08-31T07:57:28.297031+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
@@ -11,77 +11,77 @@
   "source_files": [
     {
       "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
-      "sha256": "202b6123b101785224a7f6c335d2f2c82aee76a9ab8c59e0fe81dd8f628d51fe",
+      "sha256": "a62e054ee5cb3aef8d462173daf491b7e5c6c43a08d91e785fed3fac9180d64c",
       "row_count": 3000
     },
     {
       "file": "android_vivo_y19_mlkem_512_20260812T204747Z.csv",
-      "sha256": "1ff9e708ea99500dbb471b90ce6335f4b82b6aba2417cc77a85255decd1ff27f",
+      "sha256": "6f0976d309c345f5584b9c8c6b173712a8b7bc09bcc5df2bc8fecaf48b488d4d",
       "row_count": 3000
     },
     {
       "file": "android_vivo_y19_mlkem_768_20260812T204804Z.csv",
-      "sha256": "7c612e7b39e6ca1293f2df03238fa1bf6d1a56793d7d40aef5b62c080a43c16b",
+      "sha256": "0b296f6f525ed9912d28c05cfa3e30bd47ebdef0123bb3ba31037cc5c8d004f5",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_1024_20260813T100912Z.csv",
-      "sha256": "862af7449002a310051d876f78ad8b4bea4f94fc1d778f52df7189ba503c88fd",
+      "sha256": "c969568a6902322b4cdec3c13542e00bb108f88bdb652008a38f05c5ab63de82",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_512_20260813T100912Z.csv",
-      "sha256": "25bf1105c324797def22415ed8c6168569a3c50f87d3c6d5d1a1d0125173247a",
+      "sha256": "22e2b9b695b57d4d613af8f89f3bc6cc2f381e22a53e05c624302be0f8fabab6",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_768_20260813T100912Z.csv",
-      "sha256": "ab63c34952a293b22862a0e90f4b2079463cb7d2cba3b8d379c00e429af59305",
+      "sha256": "c85da9abf690b346255fba4ffb15f904c6ebe359dbad6ea5a059c7fb95f8f221",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260813T090600Z.csv",
-      "sha256": "bc9f993e5d1c290cbbc6f58fd5f6da6ec5d389ce387a0a7e9918c56810627101",
+      "sha256": "0f66ce7c33b1205c2216b16bd910a5b7c57b1afbdc72ab573e98ee744821e9ae",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_512_20260813T090600Z.csv",
-      "sha256": "38264d290f71239f3ebf42fcf7e28e9ab6bd1ea98b067c022304207bb612a275",
+      "sha256": "c09ec53d1343f6c2aab7845fd3ebe286b26f2b58461aaba35a8d85470495dd97",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_768_20260813T090600Z.csv",
-      "sha256": "24cfd793275ff86beee19dcadb18e04355bb4dc7fc3837c80b6dc115dc266070",
+      "sha256": "1a3387ed55c980cf5b6e4538bcea1ca79d30ea40e24f92034f3f23e2af00a706",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_1024_20260813T094355Z.csv",
-      "sha256": "f595818e402e6c3239ce2a6c2a08eb3f0c5fb1c5ba8ba7ab0091c7bcd690e957",
+      "sha256": "3ec853c6adfb869c426ef9b9f9fd65fef4fc08358f10233abdb6848021cf0cd9",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_512_20260813T094355Z.csv",
-      "sha256": "d753cc2795a93c4018d665be9441d5c38703c3e3021d1ab7a364a10fb441789b",
+      "sha256": "d02d6a30bc8aaf29974d5f015052e7a238ba7f4c587c86c1a60078e52629cdd7",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_768_20260813T094355Z.csv",
-      "sha256": "0f44e24fb6d52a4e533e4773c38fcf9dfe049eb9ac508e6202a9d2cd760ab5fa",
+      "sha256": "4b6f3207a2ebb8162e008371a75826d84ee5f1970e8ef92bad99026563f02910",
       "row_count": 3000
     },
     {
       "file": "riscv64_qemu_mlkem_1024_20260812T224224Z.csv",
-      "sha256": "6ccb3a5c9121a9d3de04f5cc4106432a9270cb229bb9d55a1416849ea0e3bd11",
+      "sha256": "31fd79a7c26bd72c46f84d7a019e8cc66577aefd559aa1d45311d6acd161aeef",
       "row_count": 3000
     },
     {
       "file": "riscv64_qemu_mlkem_512_20260812T224101Z.csv",
-      "sha256": "087ae8677b9d83c456a9c4a231cd38e71a4fcf6da218af65e1c2cc0b9b6f9809",
+      "sha256": "a52cbc238c23061a83c042170d7ddcc50f382b2a7600250a72ea00f2b8d7a5a2",
       "row_count": 3000
     },
     {
       "file": "riscv64_qemu_mlkem_768_20260812T224148Z.csv",
-      "sha256": "07ac905d06d448381be451cf7d81f5c9302835255f84586111a459f645a6dea5",
+      "sha256": "2b9e6fa385155783e43fdec334403702c89c0293d59be49c9c32a846c13b8ba7",
       "row_count": 3000
     }
   ],

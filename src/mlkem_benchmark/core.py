@@ -252,10 +252,14 @@ def run_benchmark(config: BenchmarkConfig, raw_dir: Path, metadata_dir: Path) ->
     for variant in config.variants:
         kem = VARIANT_MODULES[variant]
         for iteration in range(1, config.iterations + 1):
+            keygen_fn = getattr(kem, "generate_keypair", getattr(kem, "keygen", None))
+            encrypt_fn = getattr(kem, "encrypt", getattr(kem, "encaps", None))
+            decrypt_fn = getattr(kem, "decrypt", getattr(kem, "decaps", None))
+
             if "keygen" in config.operations:
                 row = _base_row(metadata, experiment_id, run_id, variant, "keygen", iteration)
                 try:
-                    elapsed, keypair = _measure(kem.generate_keypair)
+                    elapsed, keypair = _measure(keygen_fn)
                     public_key, secret_key = keypair
                     if not public_key or not secret_key:
                         raise ValueError("key generation returned empty key material")
@@ -264,23 +268,23 @@ def run_benchmark(config: BenchmarkConfig, raw_dir: Path, metadata_dir: Path) ->
                     row["error_message"] = f"{type(exc).__name__}: {exc}"
                 rows.append(row)
 
-            recipient_public, recipient_secret = kem.generate_keypair()
+            recipient_public, recipient_secret = keygen_fn()
             if "encapsulation" in config.operations:
                 row = _base_row(metadata, experiment_id, run_id, variant, "encapsulation", iteration)
                 try:
-                    elapsed, encapsulation = _measure(lambda: kem.encrypt(recipient_public))
+                    elapsed, encapsulation = _measure(lambda: encrypt_fn(recipient_public))
                     ciphertext, shared_secret = encapsulation
                     row.update(execution_time_ns=elapsed, memory_bytes=_memory_bytes(), success=True)
                 except Exception as exc:
                     row["error_message"] = f"{type(exc).__name__}: {exc}"
                 rows.append(row)
             else:
-                ciphertext, shared_secret = kem.encrypt(recipient_public)
+                ciphertext, shared_secret = encrypt_fn(recipient_public)
 
             if "decapsulation" in config.operations:
                 row = _base_row(metadata, experiment_id, run_id, variant, "decapsulation", iteration)
                 try:
-                    elapsed, recovered_secret = _measure(lambda: kem.decrypt(recipient_secret, ciphertext))
+                    elapsed, recovered_secret = _measure(lambda: decrypt_fn(recipient_secret, ciphertext))
                     if recovered_secret != shared_secret:
                         raise ValueError("decapsulated shared secret does not match encapsulated shared secret")
                     row.update(execution_time_ns=elapsed, memory_bytes=_memory_bytes(), success=True)
