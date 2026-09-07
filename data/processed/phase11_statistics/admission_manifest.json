@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-08-31T07:57:28.297031+00:00",
+  "created_at_utc": "2026-09-07T16:39:47.996463+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
   },
-  "row_count": 45000,
-  "successful_measurement_count": 45000,
-  "statistics_group_count": 45,
+  "row_count": 63000,
+  "successful_measurement_count": 63000,
+  "statistics_group_count": 63,
   "source_files": [
     {
       "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
@@ -38,6 +38,16 @@
       "file": "native_x86_32_mlkem_native_mlkem_768_20260813T100912Z.csv",
       "sha256": "c85da9abf690b346255fba4ffb15f904c6ebe359dbad6ea5a059c7fb95f8f221",
       "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_i7_1255u_windows_20260907T163826Z_5d629dfb-834f-468c-9b55-9c9f9e7b74a4.csv",
+      "sha256": "84e4a892d55fa329c691c683fcf16d9cf2b88106627ada201d7a9d19b65691c1",
+      "row_count": 9000
+    },
+    {
+      "file": "native_x86_64_i7_1255u_windows_single_core_20260907T163828Z_3d1d6edd-6880-4dd3-a392-41c7e9e12042.csv",
+      "sha256": "cb013d3b5277379030ada5c6ce20a380a9361c70f7fb6c6dbdcaf7d4854ee352",
+      "row_count": 9000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260813T090600Z.csv",
@@ -87,7 +97,7 @@
   ],
   "measurement_type_counts": {
     "EMULATED": 9000,
-    "NATIVE_SOFTWARE": 27000,
+    "NATIVE_SOFTWARE": 45000,
     "REAL_HARDWARE": 9000
   },
   "limitations": [

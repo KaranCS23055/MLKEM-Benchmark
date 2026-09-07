@@ -1,6 +1,6 @@
 # 📊 NIST FIPS 203 ML-KEM Empirical Benchmark Dataset
 
-[![Dataset Size](https://img.shields.io/badge/Total%20Measurements-45%2C000%20Rows-blue.svg)](raw/)
+[![Dataset Size](https://img.shields.io/badge/Total%20Measurements-63%2C000%20Rows-blue.svg)](raw/)
 [![Integrity](https://img.shields.io/badge/SHA--256-Verified%20Manifests-emerald.svg)](metadata/)
 [![Standard](https://img.shields.io/badge/NIST%20Standard-FIPS%20203%20ML--KEM-purple.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/Source-mlkem--native%20v1.2.0-amber.svg)](https://github.com/pq-code-package/mlkem-native)
@@ -19,11 +19,11 @@ Every single measurement in this dataset is an **empirical execution record** pr
 
 ```text
 data/
-├── raw/                         # 15 immutable, append-only CSV benchmark files (45,000 rows)
+├── raw/                         # 17 immutable, append-only CSV benchmark files (63,000 rows)
 ├── metadata/                    # SHA-256 checksums and execution environment manifests
 ├── processed/
-│   ├── phase11_statistics/      # Normalized observations (19.9 MB) and 45-row statistics summary
-│   │   ├── observations.csv     # Complete 45,000-row merged master dataset
+│   ├── phase11_statistics/      # Normalized observations and 63-group statistics summary
+│   │   ├── observations.csv     # Complete 63,000-row merged master dataset
 │   │   ├── benchmark_statistics.csv # Grouped Mean, Median, StdDev, P95, P99 metrics
 │   │   └── admission_manifest.json
 │   └── phase11_training/        # Feature-engineered training data & model evaluation metrics
@@ -34,9 +34,9 @@ data/
 
 ---
 
-## 🗂️ Raw Dataset Inventory (15 CSV Files — 45,000 Rows)
+## 🗂️ Raw Dataset Inventory (17 CSV Files — 63,000 Rows)
 
-Each file contains **3,000 rows** (1,000 KeyGen + 1,000 Encap + 1,000 Decap):
+Each file contains **3,000 rows** (or 9,000 rows for consolidated 3-variant runs):
 
 | File Name | Hardware / SoC | Architecture | Variant | Rows | Size |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -55,7 +55,9 @@ Each file contains **3,000 rows** (1,000 KeyGen + 1,000 Encap + 1,000 Decap):
 | `riscv64_qemu_mlkem_512_*.csv` | RV64GC Linux Guest | `riscv64` | ML-KEM-512 | 3,000 | 1.07 MB |
 | `riscv64_qemu_mlkem_768_*.csv` | RV64GC Linux Guest | `riscv64` | ML-KEM-768 | 3,000 | 1.07 MB |
 | `riscv64_qemu_mlkem_1024_*.csv`| RV64GC Linux Guest | `riscv64` | ML-KEM-1024 | 3,000 | 1.07 MB |
-| **TOTAL RAW DATASET** | **5 Environments** | **4 Architectures**| **All 3 Variants** | **45,000** | **~19.9 MB** |
+| `native_x86_64_i7_1255u_windows_*.csv` | Intel i7-1255U (Multi-core) | `x86_64` | All 3 Variants | 9,000 | 2.50 MB |
+| `native_x86_64_i7_1255u_windows_single_core_*.csv` | Intel i7-1255U (P-Core Affinity 0x1) | `x86_64` | All 3 Variants | 9,000 | 2.50 MB |
+| **TOTAL RAW DATASET** | **7 Environments** | **4 Architectures**| **All 3 Variants** | **63,000** | **~25.0 MB** |
 
 ---
 

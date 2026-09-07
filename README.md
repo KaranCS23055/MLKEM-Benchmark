@@ -2,7 +2,7 @@
 
 [![NIST Standard](https://img.shields.io/badge/NIST-FIPS%20203%20ML--KEM-blue.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/C99%20Source-mlkem--native%20v1.2.0-emerald.svg)](https://github.com/pq-code-package/mlkem-native)
-[![Dataset](https://img.shields.io/badge/Empirical%20Dataset-45%2C000%20Rows-purple.svg)](data/README.md)
+[![Dataset](https://img.shields.io/badge/Empirical%20Dataset-63%2C000%20Rows-purple.svg)](data/README.md)
 [![ML Model](https://img.shields.io/badge/ML%20Surrogate-Random%20Forest%20(86.7%25)-amber.svg)](ml/artifacts/)
 [![Tests](https://img.shields.io/badge/Tests-9%2F9%20Passing-brightgreen.svg)](tests/)
 
@@ -35,12 +35,15 @@ This project builds an end-to-end empirical benchmarking pipeline and an **AI-dr
 |  [x86-64 Multi-Core]    [x86-64 Single-Core]    [x86-32 Multilib]                 |
 |  (AMD Ryzen 5 4600H)    (taskset -c 0 Core Pin) (GCC -m32 i686)                   |
 |                                                                                   |
-|  [ARM64 Real Hardware]  [RISC-V 64-bit QEMU]    [ARM Cortex-M4 STM32F4]           |
-|  (MediaTek Helio P65)   (RV64GC Linux Guest)    (Renode Bare-Metal Simulation)    |
+|  [Intel i7-1255U Multi] [Intel i7-1255U P-Core] [ARM64 Real Hardware]             |
+|  (Windows 11 Native)    (Affinity Mask 0x1)     (MediaTek Helio P65 Phone)        |
+|                                                                                   |
+|  [RISC-V 64-bit QEMU]   [ARM Cortex-M4 STM32F4]                                  |
+|  (RV64GC Linux Guest)   (Renode Bare-Metal Simulation)                            |
 |                                                                                   |
 |  * Source: mlkem-native v1.2.0 (C99 Portable Backend, SHA: 0ba906cb)             |
 |  * Timing: POSIX CLOCK_MONOTONIC_RAW (Nanosecond precision)                       |
-|  * Output: 45,000 empirical rows (1,000 iterations per variant x op x env)        |
+|  * Output: 63,000 empirical rows (1,000 iterations per variant x op x env)        |
 +------------------------------------------+----------------------------------------+
                                            |
                                            v
@@ -108,9 +111,9 @@ This project builds an end-to-end empirical benchmarking pipeline and an **AI-dr
 
 ---
 
-## 📊 Summary of Empirical Results (45,000 Rows)
+## 📊 Summary of Empirical Results (63,000 Rows)
 
-Across **5 execution environments**, **3 variants**, and **3 operations** (1,000 iterations each):
+Across **7 execution environments**, **3 variants**, and **3 operations** (1,000 iterations each):
 
 | Environment / Hardware | Variant | KeyGen Latency | Encap Latency | Decap Latency | Total Handshake | Throughput |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -118,6 +121,8 @@ Across **5 execution environments**, **3 variants**, and **3 operations** (1,000
 | **x86-64 Native Workstation**<br>*(AMD Ryzen 5 4600H)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 22.83 $\mu s$<br>38.47 $\mu s$<br>53.24 $\mu s$ | 24.12 $\mu s$<br>39.41 $\mu s$<br>57.85 $\mu s$ | 30.16 $\mu s$<br>47.56 $\mu s$<br>64.43 $\mu s$ | **0.077 ms**<br>**0.125 ms**<br>**0.175 ms** | 41,465 ops/s<br>25,372 ops/s<br>17,285 ops/s |
 | **32-Bit Legacy x86**<br>*(i686 Multilib GCC)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 145.47 $\mu s$<br>130.26 $\mu s$<br>192.49 $\mu s$ | 151.57 $\mu s$<br>138.44 $\mu s$<br>198.55 $\mu s$ | 189.53 $\mu s$<br>167.63 $\mu s$<br>233.73 $\mu s$ | **0.487 ms**<br>**0.436 ms**<br>**0.625 ms** | 6,598 ops/s<br>7,223 ops/s<br>5,036 ops/s |
 | **64-Bit RISC-V QEMU Guest**<br>*(RV64GC Linux)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 290.16 $\mu s$<br>466.17 $\mu s$<br>675.85 $\mu s$ | 308.33 $\mu s$<br>497.43 $\mu s$<br>717.02 $\mu s$ | 373.59 $\mu s$<br>583.42 $\mu s$<br>828.57 $\mu s$ | **0.972 ms**<br>**1.547 ms**<br>**2.221 ms** | 3,243 ops/s<br>2,010 ops/s<br>1,395 ops/s |
+| **x86-64 Windows Native (Multi-Core)**<br>*(Intel i7-1255U, 12th Gen — nwlpad2301-Leno)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 51.80 $\mu s$<br>89.87 $\mu s$<br>126.92 $\mu s$ | 62.45 $\mu s$<br>106.83 $\mu s$<br>146.38 $\mu s$ | 84.69 $\mu s$<br>135.58 $\mu s$<br>180.39 $\mu s$ | **0.199 ms**<br>**0.332 ms**<br>**0.454 ms** | 19,307 ops/s<br>11,127 ops/s<br>7,879 ops/s |
+| **x86-64 Windows Native (Single P-Core)**<br>*(Intel i7-1255U, Affinity 0x1 — nwlpad2301-Leno)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 55.65 $\mu s$<br>86.91 $\mu s$<br>158.57 $\mu s$ | 69.78 $\mu s$<br>104.29 $\mu s$<br>187.21 $\mu s$ | 94.73 $\mu s$<br>132.77 $\mu s$<br>232.69 $\mu s$ | **0.220 ms**<br>**0.324 ms**<br>**0.578 ms** | 17,970 ops/s<br>11,506 ops/s<br>6,306 ops/s |
 
 *For complete dataset documentation and column schemas, see [`data/README.md`](data/README.md).*
 

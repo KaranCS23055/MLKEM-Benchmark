@@ -1,0 +1,28 @@
+{
+  "environment": {
+    "name": "native_x86_64_i7_1255u_windows_single_core",
+    "type": "NATIVE_SOFTWARE",
+    "architecture": "x86_64",
+    "description": "12th Gen Intel Core i7-1255U (10-core: 2P+8E, 1.70 GHz base / 4.70 GHz boost), 16 GB LPDDR4x, Windows 11 64-bit. Process pinned to logical CPU 0 (P-core) via SetProcessAffinityMask. nwlpad2301-Leno device.",
+    "host_device": "nwlpad2301-Leno",
+    "processor_marketing_name": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "processor_base_ghz": 1.70,
+    "processor_boost_ghz": 4.70,
+    "p_cores": 2,
+    "e_cores": 8,
+    "logical_cpus": 12,
+    "ram_gb": 16,
+    "gpu": "Intel(R) Iris(R) Xe Graphics",
+    "os_version": "Windows 11 64-bit",
+    "notes": "Single P-core run: affinity mask 0x1 pins process to logical CPU 0 (first P-core). Eliminates cross-core scheduling noise. Comparable to native_x86_64_single_core Ryzen run."
+  },
+  "implementation": {
+    "name": "pqcrypto",
+    "version": "auto-detected",
+    "backend": "prebuilt Python wheel (wraps mlkem-native portable C)"
+  },
+  "variants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
+  "operations": ["keygen", "encapsulation", "decapsulation"],
+  "iterations": 1000,
+  "cpu_affinity_mask": 1
+}
