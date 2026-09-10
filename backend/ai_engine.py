@@ -209,7 +209,10 @@ def _ml_inference(inputs: RecommendationFormInputs) -> RecommendationResult | No
         sec_eligible = [i for i in ram_eligible if VARIANT_ORDER[variants[i]] >= min_var_order]
         eligible = sec_eligible if sec_eligible else ram_eligible
 
-        best_idx = max(eligible, key=lambda i: proba[i])
+        if not sec_eligible:
+            best_idx = max(eligible, key=lambda i: (VARIANT_ORDER[variants[i]], proba[i]))
+        else:
+            best_idx = max(eligible, key=lambda i: proba[i])
         chosen = variants[best_idx]
         confidence = round(float(proba[best_idx]) * 100, 1)
 
@@ -221,7 +224,7 @@ def _ml_inference(inputs: RecommendationFormInputs) -> RecommendationResult | No
             )
         else:
             reason = (
-                f"Random Forest surrogate model (Accuracy 86.7%, GroupKFold F1 0.786) "
+                f"Random Forest surrogate model (Accuracy 84.6%, 80/20 Split F1 0.778) "
                 f"selected {chosen} with {confidence}% confidence based on your hardware "
                 f"profile ({inputs.ram} KB SRAM, {inputs.frequency} MHz, {inputs.securityLevel} security), "
                 f"measured benchmark aggregates, and application profile policy."

@@ -25,6 +25,31 @@ export interface BenchmarkRecord {
   verification_status: 'PASS' | 'OOM' | 'FAIL';
   recommended_variant?: string;
   operation?: string;
+
+  // Complete 24 Observation Dataset Parameters
+  experiment_id?: string;
+  run_id?: string;
+  timestamp?: string;
+  environment?: string;
+  measurement_type?: string;
+  normalized_measurement_type?: string;
+  architecture?: string;
+  processor?: string;
+  cpu_cores?: number;
+  ram_mb?: number;
+  os?: string;
+  compiler?: string;
+  compiler_version?: string;
+  optimization_flags?: string;
+  implementation?: string;
+  implementation_version?: string;
+  mlkem_variant?: string;
+  iteration?: number;
+  execution_time_ns?: number;
+  memory_bytes?: number;
+  success?: string;
+  error_message?: string;
+  source_file?: string;
 }
 
 export interface ProcessorProfile {
