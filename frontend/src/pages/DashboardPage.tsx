@@ -69,14 +69,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   }, []);
 
   const stats = analytics ?? {
-    totalBenchmarks: 45000,
-    totalPasses: 45000,
+    totalBenchmarks: 63000,
+    totalPasses: 63000,
     totalOOMs: 0,
     passRatePercent: 100,
     avgEncapLatencyUs: 168.47,
-    supportedProcessors: 5,
+    supportedProcessors: 7,
     mlkemVariants: 3,
-    aiAccuracyPercent: 86.7,
+    aiAccuracyPercent: 84.62,
   };
 
   return (
@@ -96,7 +96,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </h1>
             <p className="text-xs lg:text-sm text-slate-600 leading-relaxed">
               Empirical characterization of NIST FIPS 203 ML-KEM variants (512, 768, 1024) across
-              5 hardware execution environments (x86-64, x86-32, aarch64, riscv64, Cortex-M4).
+              7 hardware execution environments (x86-64 Windows, x86-64 WSL2, x86-32, aarch64, riscv64, Cortex-M4).
               {analytics && <span className="text-emerald-700 font-semibold"> {stats.totalBenchmarks.toLocaleString()} benchmark measurements loaded live from backend.</span>}
             </p>
 
@@ -121,7 +121,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
               Random Forest ML surrogate model.
             </p>
             <div className="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-500">
-              <span className="text-emerald-600 font-bold">ML Model:</span> Random Forest · Accuracy: 86.67% · Grouped F1: 0.786
+              <span className="text-emerald-600 font-bold">ML Model:</span> Random Forest · Accuracy: 84.62% · 80/20 Split F1: 0.778
             </div>
           </div>
         </div>
@@ -138,7 +138,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         <StatCard
           title="Environments"
           value={stats.supportedProcessors}
-          subtitle="x86-64, x86-32, aarch64, riscv64, M4"
+          subtitle="x86-64 Win, x86-64 WSL2, x86-32, aarch64, riscv64"
           icon={<Cpu className="w-5 h-5 text-slate-700" />}
         />
         <StatCard

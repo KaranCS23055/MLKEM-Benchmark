@@ -133,7 +133,7 @@ export const AnalyticsPage: React.FC = () => {
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '11px', color: '#0f172a',
   };
 
-  const stats = analytics ?? { totalBenchmarks: 45000, totalPasses: 45000, totalOOMs: 0, passRatePercent: 100, avgEncapLatencyUs: 168.47, aiAccuracyPercent: 86.67 };
+  const stats = analytics ?? { totalBenchmarks: 63000, totalPasses: 63000, totalOOMs: 0, passRatePercent: 100, avgEncapLatencyUs: 168.47, aiAccuracyPercent: 84.62 };
 
   if (loading) {
     return (
@@ -165,8 +165,8 @@ export const AnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Benchmarks"   value={stats.totalBenchmarks.toLocaleString()} subtitle="Empirical NIST FIPS 203 measurements" icon={<Activity className="w-5 h-5 text-slate-700" />} />
         <StatCard title="Pass Rate"          value={`${stats.passRatePercent}%`}       subtitle={`${stats.totalOOMs} OOM events recorded`} icon={<ShieldCheck className="w-5 h-5 text-slate-700" />} />
-        <StatCard title="Avg Encap Latency"  value={`${stats.avgEncapLatencyUs.toFixed(1)} µs`} subtitle="Mean across all 5 environments" icon={<Zap className="w-5 h-5 text-slate-700" />} />
-        <StatCard title="AI Model Accuracy"  value={`${stats.aiAccuracyPercent}%`}     subtitle="Random Forest, GroupKFold CV" icon={<Cpu className="w-5 h-5 text-slate-700" />} />
+        <StatCard title="Avg Encap Latency"  value={`${stats.avgEncapLatencyUs.toFixed(1)} µs`} subtitle="Mean across all 7 environments" icon={<Zap className="w-5 h-5 text-slate-700" />} />
+        <StatCard title="AI Model Accuracy"  value={`${stats.aiAccuracyPercent}%`}     subtitle="Random Forest, 80/20 Train/Test Split" icon={<Cpu className="w-5 h-5 text-slate-700" />} />
       </div>
 
       {/* Chart Row 1: Latency + Cycles */}
@@ -292,9 +292,9 @@ export const AnalyticsPage: React.FC = () => {
               {[
                 ['Algorithm',        'Random Forest Classifier (scikit-learn)'],
                 ['Training Data',    `${stats.totalBenchmarks.toLocaleString()} live observations → ${Math.max(1, Math.round(stats.totalBenchmarks / 500)).toLocaleString()} derived candidates`],
-                ['Validation',       '5-fold GroupKFold (env-stratified)'],
+                ['Validation',       'Explicit 80% Train / 20% Test Split'],
                 ['Test Accuracy',    `${stats.aiAccuracyPercent}%`],
-                ['Weighted F1',      '0.786'],
+                ['Weighted F1',      '0.778'],
                 ['Features Used',    'security_req, latency_sens, mem_constraint, handshake_latency_ms, architecture, measurement_type'],
                 ['Artifact',         'ml/artifacts/recommendation_policy_model.joblib'],
                 ['Inference Path',   'POST /api/recommendation → ai_engine.py → RF model → RecommendationResult'],
