@@ -21,7 +21,16 @@ from typing import Any
 
 from importlib.metadata import version
 
-from pqcrypto.kem import ml_kem_1024, ml_kem_512, ml_kem_768
+try:
+    from pqcrypto.kem import ml_kem_1024, ml_kem_512, ml_kem_768
+    VARIANT_MODULES = {
+        "ML-KEM-512": ml_kem_512,
+        "ML-KEM-768": ml_kem_768,
+        "ML-KEM-1024": ml_kem_1024,
+    }
+except ImportError:
+    ml_kem_512 = ml_kem_768 = ml_kem_1024 = None
+    VARIANT_MODULES = {}
 
 try:
     import resource
@@ -36,11 +45,6 @@ REQUIRED_COLUMNS = [
     "execution_time_ns", "memory_bytes", "success", "error_message",
 ]
 
-VARIANT_MODULES = {
-    "ML-KEM-512": ml_kem_512,
-    "ML-KEM-768": ml_kem_768,
-    "ML-KEM-1024": ml_kem_1024,
-}
 VALID_OPERATIONS = {"keygen", "encapsulation", "decapsulation"}
 
 
@@ -51,6 +55,7 @@ class BenchmarkConfig:
     variants: list[str]
     operations: list[str]
     iterations: int
+    cpu_affinity_mask: int | None = None
 
 
 def load_config(path: Path) -> BenchmarkConfig:
@@ -77,7 +82,8 @@ def load_config(path: Path) -> BenchmarkConfig:
     for name in ("name", "version"):
         if not payload["implementation"].get(name):
             raise ValueError(f"implementation.{name} is required")
-    if not set(payload["variants"]).issubset(VARIANT_MODULES):
+    standard_variants = {"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"}
+    if not set(payload["variants"]).issubset(standard_variants):
         raise ValueError("Unsupported ML-KEM variant in configuration")
     if not payload["variants"]:
         raise ValueError("At least one ML-KEM variant is required")
@@ -86,7 +92,15 @@ def load_config(path: Path) -> BenchmarkConfig:
     if not payload["operations"]:
         raise ValueError("At least one operation is required")
 
-    return BenchmarkConfig(**{key: payload[key] for key in required})
+    mask = payload.get("cpu_affinity_mask") or payload["environment"].get("cpu_affinity_mask")
+    return BenchmarkConfig(
+        environment=payload["environment"],
+        implementation=payload["implementation"],
+        variants=payload["variants"],
+        operations=payload["operations"],
+        iterations=payload["iterations"],
+        cpu_affinity_mask=mask,
+    )
 
 
 def _windows_memory() -> tuple[int | None, int | None]:

@@ -33,7 +33,7 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 # --- Commit pin enforcement ---
-EXPECTED_COMMIT=0ba906cb14b1c241476134d7403a811b382ca498
+EXPECTED_COMMIT=2507ff79a0acfec6e94a9a83709b5774491fdbb6
 ACTUAL_COMMIT=$(git -C "$SOURCE_ROOT" rev-parse HEAD 2>/dev/null || echo "UNKNOWN")
 if [ "$ACTUAL_COMMIT" != "$EXPECTED_COMMIT" ]; then
   echo "BLOCKED: mlkem-native is not at the pinned commit." >&2

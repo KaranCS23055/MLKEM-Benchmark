@@ -6,7 +6,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "${1:-$SCRIPT_DIR/benchmark_config.sh}"
 SOURCE_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../mlkem-native" && pwd)
 BUILD_DIR="$SCRIPT_DIR/build"
-EXPECTED_COMMIT=0ba906cb14b1c241476134d7403a811b382ca498
+EXPECTED_COMMIT=2507ff79a0acfec6e94a9a83709b5774491fdbb6
 
 if [ "$(uname -m)" != "riscv64" ]; then
   echo "BLOCKED: run this inside the RISC-V Linux guest; found $(uname -m)." >&2

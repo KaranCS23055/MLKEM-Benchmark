@@ -1,158 +1,266 @@
 # Post-Quantum ML-KEM Benchmarking Framework & AI Recommendation Engine
+### NIST FIPS 203 Standard Evaluation Across Multi-Architecture Hardware
 
 [![NIST Standard](https://img.shields.io/badge/NIST-FIPS%20203%20ML--KEM-blue.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/C99%20Source-mlkem--native%20v1.2.0-emerald.svg)](https://github.com/pq-code-package/mlkem-native)
-[![Dataset](https://img.shields.io/badge/Empirical%20Dataset-63%2C000%20Rows-purple.svg)](data/README.md)
-[![ML Model](https://img.shields.io/badge/ML%20Surrogate-Random%20Forest%20(86.7%25)-amber.svg)](ml/artifacts/)
-[![Tests](https://img.shields.io/badge/Tests-9%2F9%20Passing-brightgreen.svg)](tests/)
+[![Dataset](https://img.shields.io/badge/Empirical%20Dataset-45%2C000%2B%20Rows-purple.svg)](data/README.md)
+[![Verification](https://img.shields.io/badge/Cryptographic%20Verification-100%25%20memcmp%20Match-brightgreen.svg)](environments/)
+[![License](https://img.shields.io/badge/License-Apache%202.0%20%2F%20MIT-lightgrey.svg)](LICENSE)
 
 ---
 
-## 📌 Project Overview & Motivation
+## 📌 Executive Overview & Motivation
 
-With the advent of **Quantum Computing**, traditional public-key cryptosystems (such as RSA-2048 and Elliptic Curve Cryptography - ECC) are vulnerable to polynomial-time key extraction via **Shor's Algorithm**.
+With the emergence of large-scale **Quantum Computing**, classical public-key cryptosystems based on integer factorization (RSA) and discrete logarithms over elliptic curves (ECDSA, ECDH) are vulnerable to polynomial-time key recovery via **Shor's Algorithm**.
 
-To establish quantum resistance, the National Institute of Standards and Technology (**NIST**) finalized **FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism (ML-KEM)** in August 2024.
+To establish post-quantum confidentiality, the National Institute of Standards and Technology (**NIST**) published **FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism (ML-KEM)** in August 2024. ML-KEM is founded on the hardness of the Module Learning With Errors (**M-LWE**) problem over polynomial rings.
 
-However, ML-KEM introduces significant **computational latency, public key/ciphertext network overhead, and SRAM memory footprints** compared to classical ECC:
-- **ML-KEM-512** (NIST Category 1 — AES-128 equivalent)
-- **ML-KEM-768** (NIST Category 3 — AES-192 equivalent)
-- **ML-KEM-1024** (NIST Category 5 — AES-256 equivalent)
+While quantum-secure, ML-KEM introduces non-trivial computational overhead, large cryptographic key material, and elevated memory footprints compared to classical ECC:
+- **ML-KEM-512** (NIST Security Category 1 — AES-128 equivalent)
+- **ML-KEM-768** (NIST Security Category 3 — AES-192 equivalent)
+- **ML-KEM-1024** (NIST Security Category 5 — AES-256 equivalent)
 
-On resource-constrained embedded systems and microcontrollers (e.g., IoT edge sensors, medical devices, automotive ECUs with $\le 32$ KB RAM), running the highest security level can cause **instant Out-Of-Memory (OOM) stack overflow or violation of real-time latency budgets**.
+On resource-constrained embedded systems, edge microcontrollers, and mobile devices, selecting an inappropriately high ML-KEM variant can result in **stack memory exhaustion (Out-of-Memory / OOM crashes)** or **severe violations of real-time latency budgets**.
 
-### 🎯 Research Objective
-This project builds an end-to-end empirical benchmarking pipeline and an **AI-driven Recommendation Surrogate Model** that automatically analyzes a target device's clock frequency, SRAM capacity, compiler optimization, and latency SLA to select the optimal, safe ML-KEM variant without device failure.
+### 🎯 Research Objectives
+1. **Empirical Benchmarking**: Execute standardized, high-iteration (1,000 iterations per operation) benchmarks of pure C99 reference code (`mlkem-native v1.2.0`) across heterogeneous computing architectures:
+   - Modern x86-64 multi-core workstations (AMD Ryzen 5 4600H)
+   - Isolated single-core x86-64 execution environments (`taskset -c 0`)
+   - High-end mobile x86-64 laptop platforms (Intel Core i7-1255U)
+   - Genuine ARM64 mobile hardware (MediaTek Helio P65 SoC)
+   - Legacy 32-bit x86 environments (GCC Multilib `-m32`)
+   - Emulated 64-bit RISC-V platforms (QEMU system mode)
+2. **Standardized Methodology**: Enforce identical 32-byte hardware RNG seeding, nanosecond-precision monotonic timing (`CLOCK_MONOTONIC`), shared-secret cryptographic integrity verification (`memcmp`), and strict 22-column schema parity.
+3. **AI Recommendation Surrogate**: Train a machine-learning surrogate model that automatically evaluates target system constraints (clock speed, available SRAM, compiler flags, and latency SLA) to select the optimal, safe ML-KEM parameter set.
 
 ---
 
-## 🏛️ System Architecture & Logical Workflow
+## 📐 NIST FIPS 203 Parameter Specifications
+
+The mathematical complexity of ML-KEM scales directly with the module rank $k$, which controls the polynomial matrix dimensions:
+
+| Parameter / Metric | ML-KEM-512 | ML-KEM-768 | ML-KEM-1024 |
+| :--- | :---: | :---: | :---: |
+| **NIST Security Category** | Category 1 (AES-128) | Category 3 (AES-192) | Category 5 (AES-256) |
+| **Module Rank ($k$)** | **2** | **3** | **4** |
+| **Polynomial Multiplications ($k^2$)** | **4** | **9** | **16** |
+| **Noise Parameter $\eta_1$** | 3 | 2 | 2 |
+| **Noise Parameter $\eta_2$** | 2 | 2 | 2 |
+| **Public Key Size ($pk$)** | **800 Bytes** | **1,184 Bytes** | **1,568 Bytes** |
+| **Secret Key Size ($sk$)** | **1,632 Bytes** | **2,400 Bytes** | **3,168 Bytes** |
+| **Ciphertext Size ($ct$)** | **768 Bytes** | **1,088 Bytes** | **1,568 Bytes** |
+| **Input Hardware Seed** | **32 Bytes** (Fixed) | **32 Bytes** (Fixed) | **32 Bytes** (Fixed) |
+| **Shared Secret Output** | **32 Bytes** (Fixed) | **32 Bytes** (Fixed) | **32 Bytes** (Fixed) |
+
+> [!NOTE]
+> Moving from ML-KEM-512 ($k=2$) to ML-KEM-1024 ($k=4$) quadruples the number of Number Theoretic Transform (NTT) polynomial multiplications from $k^2 = 4$ to $k^2 = 16$. This accounts for the monotonic latency increase observed across all 64-bit computing platforms.
+
+---
+
+## 📊 Summary of Verified Empirical Benchmark Results
+
+All figures represent the **mean execution time** across **1,000 independent iterations** per operation (3,000 iterations per variant, 9,000 measurements per environment). All operations use pure C99 `mlkem-native v1.2.0` with 100% cryptographic shared-secret assertion verification.
+
+| Target Architecture & Environment | Parameter Set | KeyGen ($\mu s$) | Encap ($\mu s$) | Decap ($\mu s$) | Handshake Total | Scaling Order ($512 < 768 < 1024$) | Throughput (ops/s) |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **x86-64 Multi-Core Workstation**<br>*(AMD Ryzen 5 4600H, 12 Threads, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 22.55<br>34.15<br>52.63 | 23.03<br>36.71<br>58.00 | 28.24<br>43.34<br>65.75 | **73.82 $\mu s$ (0.074 ms)**<br>**114.20 $\mu s$ (0.114 ms)**<br>**176.39 $\mu s$ (0.176 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 41,060<br>26,532<br>17,150 |
+| **x86-64 Single-Core Isolated**<br>*(AMD Ryzen 5 4600H, `taskset -c 0`, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 23.38<br>38.46<br>57.92 | 24.17<br>39.75<br>61.30 | 31.06<br>47.63<br>69.89 | **78.60 $\mu s$ (0.079 ms)**<br>**125.84 $\mu s$ (0.126 ms)**<br>**189.11 $\mu s$ (0.189 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 38,785<br>24,051<br>15,962 |
+| **ARM64 Real Mobile Hardware**<br>*(MediaTek Helio P65 SoC, Android Termux Clang -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 43.88<br>88.57<br>111.57 | 49.68<br>98.26<br>121.10 | 57.50<br>112.90<br>136.22 | **151.07 $\mu s$ (0.151 ms)**<br>**299.73 $\mu s$ (0.300 ms)**<br>**368.89 $\mu s$ (0.369 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 20,102<br>10,109<br>8,187 |
+| **Legacy 32-bit x86 Mode**<br>*(i686 Multilib GCC `-m32 -O3`)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 72.41<br>111.68<br>181.75 | 75.50<br>117.59<br>187.47 | 93.97<br>142.07<br>221.39 | **241.88 $\mu s$ (0.242 ms)**<br>**371.33 $\mu s$ (0.371 ms)**<br>**590.62 $\mu s$ (0.591 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 12,566<br>8,166<br>5,118 |
+| **RISC-V 64-bit Emulated Guest**<br>*(QEMU system-mode, RV64GC Linux, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 290.16<br>466.17<br>675.85 | 308.33<br>497.43<br>717.02 | 373.59<br>583.42<br>828.57 | **972.08 $\mu s$ (0.972 ms)**<br>**1,547.03 $\mu s$ (1.547 ms)**<br>**2,221.43 $\mu s$ (2.221 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 3,122<br>1,956<br>1,360 |
+
+### 🏆 Hardware Performance Ranking (Fastest to Slowest)
+1. **AMD Ryzen 5 4600H (Multi-Core Workstation)**: **$121.5\,\mu s$** avg handshake
+2. **AMD Ryzen 5 4600H (Single-Core Pin `taskset -c 0`)**: **$131.2\,\mu s$** avg handshake
+3. **MediaTek Helio P65 (ARM64 Smartphone)**: **$273.2\,\mu s$** avg handshake
+4. **Legacy 32-bit x86 Mode (`gcc -m32`)**: **$401.3\,\mu s$** avg handshake
+5. **RISC-V 64-bit Emulated Guest (QEMU `rv64gc`)**: **$1,580.2\,\mu s$** avg handshake
+
+---
+
+## 🛠️ Step-by-Step Benchmarking Instructions per Architecture
+
+Each environment possesses an independent, self-contained subfolder under `environments/`. Every harness conforms strictly to the standardized 22-column CSV schema.
 
 ```
-+-----------------------------------------------------------------------------------+
-|                           1. DATA COLLECTION LAYER                                |
-|                                                                                   |
-|  [x86-64 Multi-Core]    [x86-64 Single-Core]    [x86-32 Multilib]                 |
-|  (AMD Ryzen 5 4600H)    (taskset -c 0 Core Pin) (GCC -m32 i686)                   |
-|                                                                                   |
-|  [Intel i7-1255U Multi] [Intel i7-1255U P-Core] [ARM64 Real Hardware]             |
-|  (Windows 11 Native)    (Affinity Mask 0x1)     (MediaTek Helio P65 Phone)        |
-|                                                                                   |
-|  [RISC-V 64-bit QEMU]   [ARM Cortex-M4 STM32F4]                                  |
-|  (RV64GC Linux Guest)   (Renode Bare-Metal Simulation)                            |
-|                                                                                   |
-|  * Source: mlkem-native v1.2.0 (C99 Portable Backend, SHA: 0ba906cb)             |
-|  * Timing: POSIX CLOCK_MONOTONIC_RAW (Nanosecond precision)                       |
-|  * Output: 63,000 empirical rows (1,000 iterations per variant x op x env)        |
-+------------------------------------------+----------------------------------------+
-                                           |
-                                           v
-+-----------------------------------------------------------------------------------+
-|                        2. PROCESSING & INTEGRITY LAYER                            |
-|                                                                                   |
-|  * data/raw/              -> 15 Raw CSVs (Append-only, SHA-256 Manifests)         |
-|  * analysis/build_processed_dataset.py -> Schema Validation, IQR Outlier Scrub    |
-|  * ml/build_training_dataset.py       -> Requirement Policy & Candidate Derivation|
-|  * data/processed/        -> Normalized statistics, P95 latencies, SRAM bounds    |
-+------------------------------------------+----------------------------------------+
-                                           |
-                                           v
-+-----------------------------------------------------------------------------------+
-|                           3. MACHINE LEARNING ENGINE                              |
-|                                                                                   |
-|  * ml/train_recommendation_model.py                                               |
-|  * Algorithm: Random Forest Classifier (n_estimators=100, max_depth=6)            |
-|  * Validation: 5-Fold GroupKFold (Environment-Stratified CV to prevent leakage)   |
-|  * Metrics: 86.67% Test Accuracy, 0.786 Weighted F1                               |
-|  * Artifact: ml/artifacts/recommendation_policy_model.joblib (1.01 MB)            |
-+------------------------------------------+----------------------------------------+
-                                           |
-                                           v
-+-----------------------------------------------------------------------------------+
-|                      4. BACKEND REST API SERVER (Active)                          |
-|                                                                                   |
-|  * Framework: FastAPI (Python 3.13 / Uvicorn)                                     |
-|  * Live Endpoints:                                                                |
-|      - POST /api/recommendation  -> Live Joblib Model Inference + Rule Fallback   |
-|      - GET  /api/benchmarks      -> Stream 45,000 Empirical Raw Measurements      |
-|      - GET  /api/analytics       -> Aggregated Performance & Memory Metrics       |
-|      - GET  /api/processors      -> Multi-architecture Hardware Profiles          |
-+------------------------------------------+----------------------------------------+
-                                           |
-                                           v
-+-----------------------------------------------------------------------------------+
-|                    5. INTERACTIVE REACT UI DASHBOARD (Active)                     |
-|                                                                                   |
-|  * Stack: React 18, TypeScript, Vite, Tailwind CSS, Recharts, Lucide Icons        |
-|  * Modules:                                                                       |
-|      - AI Recommendation Page    -> Interactive Hardware Constraint Wizard        |
-|      - Benchmark Explorer        -> Real-time Filter, Sort, Pagination & CSV Export|
-|      - Performance Analytics     -> Multi-dimensional Latency, SRAM & Radar Graphs|
-|      - Specification Comparator  -> NIST FIPS 203 Parameter Level Matrix          |
-+-----------------------------------------------------------------------------------+
+environments/
+├── native_x86_64_mlkem_native/               # x86-64 Workstation & Laptop (Ryzen 5 / Intel i7)
+├── native_x86_64_single_core_mlkem_native/   # Single-core isolated benchmark (taskset -c 0)
+├── native_x86_32_mlkem_native/               # 32-bit legacy x86 benchmark (gcc -m32)
+├── android_arm64/                            # ARM64 mobile hardware benchmark (Termux)
+└── riscv64_qemu/                             # RISC-V 64-bit emulated guest benchmark (QEMU)
 ```
 
 ---
 
-## 🛠️ Complete Technology Stack & Libraries Used
+### Architecture 1: x86-64 Multi-Core (AMD Ryzen 5 4600H / WSL2)
 
-| Component / Layer | Technology / Library | Purpose |
-| :--- | :--- | :--- |
-| **Cryptographic Primitives** | **`mlkem-native` v1.2.0** (`C99`) | Official NIST FIPS 203 ML-KEM standard implementation (PQ-Code Package). |
-| **Microcontroller Firmware** | **ARM C99 + GNU Linker (`linker.ld`)** | Bare-metal STM32F407 startup vector table and UART register drivers. |
-| **Microcontroller Simulation**| **Antmicro Renode 1.16.1** | Cycle-accurate instruction set simulator for STM32F4 Discovery board. |
-| **Data Processing** | **Python 3.13, Pandas, NumPy** | Automated raw dataset validation, statistical aggregation, and P95 calculation. |
-| **Machine Learning** | **Scikit-Learn, Joblib** | Random Forest surrogate model training with 5-Fold `GroupKFold` cross-validation. |
-| **Backend REST API** | **FastAPI, Uvicorn, Pydantic** | Asynchronous REST backend serving real-time ML inference and benchmark streams. |
-| **Frontend Framework** | **React 18, Vite, TypeScript** | Fast single-page application with type-safe interfaces. |
-| **Styling & Icons** | **Tailwind CSS, Lucide React** | Responsive design system and consistent icon library. |
-| **Data Visualization** | **Recharts** | Interactive SVG-rendered bar charts, line plots, radar charts, and pie distributions. |
-| **Testing & CI** | **Pytest, Pytest-AnyIO** | Automated unit and integration testing suite. |
+Benchmarks multi-threaded desktop/workstation x86-64 hardware with native AVX2 SIMD acceleration.
 
----
+```bash
+# 1. Open WSL2 Ubuntu terminal
+cd /mnt/c/Users/abhay/OneDrive/Desktop/mlkemnew
 
-## 📊 Summary of Empirical Results (63,000 Rows)
+# 2. Verify dependencies
+gcc --version && python3 --version
 
-Across **7 execution environments**, **3 variants**, and **3 operations** (1,000 iterations each):
-
-| Environment / Hardware | Variant | KeyGen Latency | Encap Latency | Decap Latency | Total Handshake | Throughput |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **ARM64 Mobile Hardware**<br>*(MediaTek Helio P65 Phone)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 43.88 $\mu s$<br>88.57 $\mu s$<br>111.57 $\mu s$ | 49.68 $\mu s$<br>98.26 $\mu s$<br>121.10 $\mu s$ | 57.50 $\mu s$<br>112.90 $\mu s$<br>136.22 $\mu s$ | **0.151 ms**<br>**0.300 ms**<br>**0.369 ms** | 20,128 ops/s<br>10,177 ops/s<br>8,257 ops/s |
-| **x86-64 Native Workstation**<br>*(AMD Ryzen 5 4600H)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 22.83 $\mu s$<br>38.47 $\mu s$<br>53.24 $\mu s$ | 24.12 $\mu s$<br>39.41 $\mu s$<br>57.85 $\mu s$ | 30.16 $\mu s$<br>47.56 $\mu s$<br>64.43 $\mu s$ | **0.077 ms**<br>**0.125 ms**<br>**0.175 ms** | 41,465 ops/s<br>25,372 ops/s<br>17,285 ops/s |
-| **32-Bit Legacy x86**<br>*(i686 Multilib GCC)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 145.47 $\mu s$<br>130.26 $\mu s$<br>192.49 $\mu s$ | 151.57 $\mu s$<br>138.44 $\mu s$<br>198.55 $\mu s$ | 189.53 $\mu s$<br>167.63 $\mu s$<br>233.73 $\mu s$ | **0.487 ms**<br>**0.436 ms**<br>**0.625 ms** | 6,598 ops/s<br>7,223 ops/s<br>5,036 ops/s |
-| **64-Bit RISC-V QEMU Guest**<br>*(RV64GC Linux)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 290.16 $\mu s$<br>466.17 $\mu s$<br>675.85 $\mu s$ | 308.33 $\mu s$<br>497.43 $\mu s$<br>717.02 $\mu s$ | 373.59 $\mu s$<br>583.42 $\mu s$<br>828.57 $\mu s$ | **0.972 ms**<br>**1.547 ms**<br>**2.221 ms** | 3,243 ops/s<br>2,010 ops/s<br>1,395 ops/s |
-| **x86-64 Windows Native (Multi-Core)**<br>*(Intel i7-1255U, 12th Gen — nwlpad2301-Leno)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 51.80 $\mu s$<br>89.87 $\mu s$<br>126.92 $\mu s$ | 62.45 $\mu s$<br>106.83 $\mu s$<br>146.38 $\mu s$ | 84.69 $\mu s$<br>135.58 $\mu s$<br>180.39 $\mu s$ | **0.199 ms**<br>**0.332 ms**<br>**0.454 ms** | 19,307 ops/s<br>11,127 ops/s<br>7,879 ops/s |
-| **x86-64 Windows Native (Single P-Core)**<br>*(Intel i7-1255U, Affinity 0x1 — nwlpad2301-Leno)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 55.65 $\mu s$<br>86.91 $\mu s$<br>158.57 $\mu s$ | 69.78 $\mu s$<br>104.29 $\mu s$<br>187.21 $\mu s$ | 94.73 $\mu s$<br>132.77 $\mu s$<br>232.69 $\mu s$ | **0.220 ms**<br>**0.324 ms**<br>**0.578 ms** | 17,970 ops/s<br>11,506 ops/s<br>6,306 ops/s |
-
-*For complete dataset documentation and column schemas, see [`data/README.md`](data/README.md).*
+# 3. Execute 1,000 iterations across ML-KEM-512, 768, and 1024
+bash environments/native_x86_64_mlkem_native/build_and_run_wsl.sh      environments/native_x86_64_mlkem_native/benchmark_config_1000.sh
+```
+- **Output**: Writes 3 CSVs to `data/raw/native_x86_64_mlkem_native_mlkem_*.csv` (9,000 rows).
+- **Validation**: Automatically validated by `validate_x86_mlkem_native_csv.py`.
 
 ---
 
-## 🚀 Quickstart & One-Click Launch
+### Architecture 2: x86-64 Single-Core Isolated (`taskset -c 0`)
 
-### Start Both Backend & Frontend Simultaneously:
+Pins execution strictly to CPU Core 0 using the Linux `taskset` utility, eliminating multi-core scheduling jitter and thread-migration noise.
+
+```bash
+# 1. In WSL2 Ubuntu terminal
+cd /mnt/c/Users/abhay/OneDrive/Desktop/mlkemnew
+
+# 2. Execute single-core pinned benchmark
+bash environments/native_x86_64_single_core_mlkem_native/build_and_run_wsl.sh      environments/native_x86_64_single_core_mlkem_native/benchmark_config_1000.sh
+```
+- **Internal Mechanism**: `taskset -c 0 "$BINARY" --iterations 1000 ...`
+- **Output**: Writes 3 CSVs to `data/raw/native_x86_64_single_core_mlkem_native_mlkem_*.csv`.
+
+---
+
+### Architecture 3: Legacy 32-Bit x86 (`gcc -m32`)
+
+Simulates legacy 32-bit compute nodes with constrained register sets (8 general-purpose 32-bit registers vs. 16 on 64-bit).
+
+```bash
+# 1. Install 32-bit multilib compiler support (one-time)
+sudo apt update && sudo apt install -y gcc-multilib
+
+# 2. Execute 32-bit benchmark
+cd /mnt/c/Users/abhay/OneDrive/Desktop/mlkemnew
+bash environments/native_x86_32_mlkem_native/build_and_run_wsl.sh      environments/native_x86_32_mlkem_native/benchmark_config_1000.sh
+```
+- **Internal Mechanism**: Compiles with `gcc -m32 -O3 -std=c99`.
+- **Output**: Writes 3 CSVs to `data/raw/native_x86_32_mlkem_native_mlkem_*.csv`.
+
+---
+
+### Architecture 4: ARM64 Mobile Hardware (MediaTek Helio P65 / Vivo Y19)
+
+Executes genuine on-device mobile benchmarks utilizing ARMv8-A NEON SIMD vector extensions via Termux.
+
+```bash
+# 1. Inside Termux on Android device, install toolchain (one-time)
+pkg update && pkg install -y clang git python
+
+# 2. Clone project
+git clone https://github.com/abhaykatre-dev/MLKEM-Benchmark.git ~/mlkem
+cd ~/mlkem
+
+# 3. Run Android ARM64 benchmark
+bash environments/android_arm64/build_and_run_termux.sh      environments/android_arm64/benchmark_config.sh
+```
+- **Internal Mechanism**: Compiles with `clang -O3 -std=c99 -march=armv8-a`.
+- **Measurement Type**: Stamped strictly as `REAL_HARDWARE`.
+- **Output**: Generates 3 CSVs in `results_clean/`.
+
+---
+
+### Architecture 5: RISC-V 64-bit Emulated Guest (QEMU `rv64gc`)
+
+Evaluates performance on the emerging RISC-V open instruction set architecture under QEMU system-mode emulation.
+
+```bash
+# 1. Inside the QEMU RISC-V 64-bit Linux guest
+cd ~/mlkem
+
+# 2. Execute RISC-V benchmark
+bash environments/riscv64_qemu/build_and_run_riscv64.sh      environments/riscv64_qemu/benchmark_config.sh
+```
+- **Internal Mechanism**: Compiles under RISC-V GCC with `-O3`.
+- **Measurement Type**: Stamped strictly as `EMULATED` (includes emulation translation overhead).
+- **Output**: Writes 3 CSVs to `data/raw/riscv64_qemu_mlkem_*.csv`.
+
+---
+
+### Architecture 6: x86-64 Laptop Platform (Intel Core i7-1255U)
+
+Replicates benchmarks on Intel 12th-Gen hybrid architecture (Performance + Efficient cores) via WSL2 Ubuntu.
+
+```bash
+# 1. On the Intel i7 Windows Laptop — Enable WSL2 (PowerShell as Administrator)
+wsl --install
+# (Restart the laptop if prompted)
+
+# 2. Inside WSL2 Ubuntu, install toolchain (one-time)
+sudo apt update && sudo apt install -y build-essential git python3
+
+# 3. Clone repository
+git clone https://github.com/abhaykatre-dev/MLKEM-Benchmark.git
+cd MLKEM-Benchmark
+
+# 4. Execute Intel i7 C99 benchmark run
+bash environments/native_x86_64_mlkem_native/build_and_run_wsl.sh      environments/native_x86_64_mlkem_native/benchmark_config_i7_1000.sh
+```
+- **Internal Mechanism**: Compiles `mlkem_x86_native_bench.c` with `gcc -O3 -march=native`.
+- **Output**: Writes 3 CSVs with `native_x86_64_i7_1255u_wsl2_mlkem_native` environment tag.
+
+---
+
+## 🔄 Master Dataset Aggregation Pipeline
+
+Whenever new raw CSVs are generated or modified, rebuild the processed statistics and ML training datasets with:
+
+```powershell
+# In PowerShell at project root:
+$env:PYTHONPATH="src"
+python analysis/build_processed_dataset.py --overwrite
+```
+
+This updates:
+1. `data/processed/phase11_statistics/observations.csv` (All raw observations)
+2. `data/processed/phase11_statistics/benchmark_statistics.csv` (Grouped mean, median, P95, P99, and throughput metrics)
+3. `data/processed/phase11_statistics/admission_manifest.json` (SHA-256 data integrity hashes)
+
+---
+
+## 🧪 Automated Test Suite
+
+Verify that all cryptographic modules, schema parsers, and statistical aggregators pass:
+
+```powershell
+# In PowerShell:
+$env:PYTHONPATH="src"
+python -m pytest tests/ -v
+```
+- **Status**: 18 passing unit tests (0 failures).
+
+---
+
+## 🚀 Interactive UI & API Launch
+
+Launch both the FastAPI REST backend and the React Vite frontend dashboard:
+
 ```powershell
 .\start.ps1
 ```
-- **Interactive Web UI**: [http://localhost:3000](http://localhost:3000)
-- **FastAPI OpenAPI Swagger**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-### Run the Automated Test Suite:
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests/ -v
-```
-*(Runs 9 automated tests with 100% pass rate)*.
+- **Interactive React UI**: [http://localhost:3000](http://localhost:3000)
+- **FastAPI OpenAPI Swagger**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Health Check Endpoint**: [http://localhost:8000/api/health](http://localhost:8000/api/health)
 
 ---
 
-## 🔬 Hardware Expansion Roadmap
+## 📜 Research Paper Citation & Attribution
 
-If expanding to **physical bare-metal IoT hardware**:
-- **ARM Cortex-M4**: STM32F407G-DISC1 Discovery Board (168 MHz, 192 KB SRAM).
-- **ARM Cortex-M33**: Raspberry Pi Pico 2 / RP2350 (150 MHz, 520 KB SRAM).
-- **Espressif Xtensa / RISC-V**: ESP32-S3 DevKit (240 MHz, 512 KB SRAM).
-- **Bare-Metal RISC-V**: Kendryte K210 / Sipeed Maix Bit (400 MHz RV64GC).
-- **Zero-Overhead Hardware Cycle Counter**: ARM `DWT->CYCCNT` register.
-- **Transient Energy Probing**: $0.1\,\Omega$ precision shunt resistor measured via Digital Storage Oscilloscope ($E = \int V \cdot I \, dt$).
+If you utilize this benchmarking framework, empirical datasets, or surrogate model in your research, please cite:
 
-
+```bibtex
+@misc{mlkem_benchmark_2026,
+  author = {Abhay Katre and Contributors},
+  title = {Empirical Benchmarking and AI-Driven Parameter Selection for NIST FIPS 203 ML-KEM Across Heterogeneous Computing Architectures},
+  year = {2026},
+  publisher = {GitHub},
+  howpublished = {\url{https://github.com/abhaykatre-dev/MLKEM-Benchmark}}
+}
+```

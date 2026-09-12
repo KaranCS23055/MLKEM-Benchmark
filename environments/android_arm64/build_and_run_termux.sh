@@ -20,7 +20,7 @@ fi
 
 COMMIT=$(git -C "$SOURCE_ROOT" rev-parse HEAD)
 VERSION=$(git -C "$SOURCE_ROOT" describe --tags --always --dirty)
-EXPECTED_COMMIT=0ba906cb14b1c241476134d7403a811b382ca498
+EXPECTED_COMMIT=2507ff79a0acfec6e94a9a83709b5774491fdbb6
 if [ "$COMMIT" != "$EXPECTED_COMMIT" ]; then
   echo "BLOCKED: This runner is validated against mlkem-native $EXPECTED_COMMIT, but found $COMMIT." >&2
   echo "Do not benchmark mixed versions. After checking git status, check out the documented commit." >&2

@@ -1,8 +1,0 @@
-using sysbus
-mach create "mlkem_m4"
-machine LoadPlatformDescription @"C:/Program Files/Renode/platforms/boards/stm32f4_discovery-kit.repl"
-showAnalyzer sysbus.uart4
-sysbus LoadELF @"@elf@"
-start
-emulation RunFor "00:00:05"
-quit

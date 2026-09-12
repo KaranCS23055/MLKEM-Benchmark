@@ -7,7 +7,18 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from .core import REQUIRED_COLUMNS, VALID_OPERATIONS, VARIANT_MODULES
+# Keep schema validation independent from the optional ``pqcrypto`` runtime.
+# This lets an auditor validate existing CSV evidence without installing the
+# benchmarking dependency or importing a native extension.
+REQUIRED_COLUMNS = [
+    "experiment_id", "run_id", "timestamp", "environment", "measurement_type",
+    "architecture", "processor", "cpu_cores", "ram_mb", "os", "compiler",
+    "compiler_version", "optimization_flags", "implementation",
+    "implementation_version", "mlkem_variant", "operation", "iteration",
+    "execution_time_ns", "memory_bytes", "success", "error_message",
+]
+VALID_OPERATIONS = {"keygen", "encapsulation", "decapsulation"}
+VALID_VARIANTS = {"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"}
 
 TEXT_FIELDS = (
     "experiment_id", "run_id", "timestamp", "environment", "measurement_type",
@@ -37,7 +48,7 @@ def validate_csv(path: Path) -> tuple[int, list[str]]:
             datetime.fromisoformat(row["timestamp"])
         except ValueError:
             errors.append(f"{prefix}: invalid ISO-8601 timestamp")
-        if row["mlkem_variant"] not in VARIANT_MODULES:
+        if row["mlkem_variant"] not in VALID_VARIANTS:
             errors.append(f"{prefix}: unsupported variant")
         if row["operation"] not in VALID_OPERATIONS:
             errors.append(f"{prefix}: unsupported operation")
