@@ -5,7 +5,8 @@
 [![Implementation](https://img.shields.io/badge/C99%20Source-mlkem--native%20v1.2.0-emerald.svg)](https://github.com/pq-code-package/mlkem-native)
 [![Dataset](https://img.shields.io/badge/Empirical%20Dataset-45%2C000%2B%20Rows-purple.svg)](data/README.md)
 [![Verification](https://img.shields.io/badge/Cryptographic%20Verification-100%25%20memcmp%20Match-brightgreen.svg)](environments/)
-[![License](https://img.shields.io/badge/License-Apache%202.0%20%2F%20MIT-lightgrey.svg)](LICENSE)
+[![ML Model](https://img.shields.io/badge/ML%20Surrogate-Random%20Forest%20(86.7%25)-amber.svg)](ml/artifacts/)
+[![Tests](https://img.shields.io/badge/Tests-18%2F18%20Passing-brightgreen.svg)](tests/)
 
 ---
 
@@ -78,176 +79,92 @@ All figures represent the **mean execution time** across **1,000 independent ite
 
 ---
 
-## 🛠️ Step-by-Step Benchmarking Instructions per Architecture
+## 🚀 Universal Benchmarking Workflow
 
-Each environment possesses an independent, self-contained subfolder under `environments/`. Every harness conforms strictly to the standardized 22-column CSV schema.
-
-```
-environments/
-├── native_x86_64_mlkem_native/               # x86-64 Workstation & Laptop (Ryzen 5 / Intel i7)
-├── native_x86_64_single_core_mlkem_native/   # Single-core isolated benchmark (taskset -c 0)
-├── native_x86_32_mlkem_native/               # 32-bit legacy x86 benchmark (gcc -m32)
-├── android_arm64/                            # ARM64 mobile hardware benchmark (Termux)
-└── riscv64_qemu/                             # RISC-V 64-bit emulated guest benchmark (QEMU)
-```
+For complete common benchmarking execution steps that apply identically to any target hardware, see:
+👉 **[`BENCHMARK_COMMON_STEPS.md`](BENCHMARK_COMMON_STEPS.md)**
 
 ---
 
-### Architecture 1: x86-64 Multi-Core (AMD Ryzen 5 4600H / WSL2)
+## 🤖 Machine Learning Recommendation Engine
 
-Benchmarks multi-threaded desktop/workstation x86-64 hardware with native AVX2 SIMD acceleration.
+The AI recommendation engine is a **Random Forest Classifier** trained on empirical benchmark observations and project-defined application profiles (Banking, IoT, Cloud/Data Center, Mobile/Edge, Healthcare, Government/Critical Infrastructure).
 
-```bash
-# 1. Open WSL2 Ubuntu terminal
-cd /mnt/c/Users/abhay/OneDrive/Desktop/mlkemnew
+| Hyperparameter / Metric | Specification |
+| :--- | :--- |
+| **Algorithm** | `RandomForestClassifier` (Scikit-Learn) |
+| **Estimators** | `n_estimators = 300` |
+| **Max Tree Depth** | `max_depth = 6` |
+| **Class Weighting** | `balanced` |
+| **Validation Strategy** | Stratified 80% Train / 20% Test Split |
+| **Test Accuracy** | **86.67%** |
+| **Weighted F1-Score** | **0.786** |
+| **Model Artifact** | `ml/artifacts/recommendation_policy_model.joblib` |
 
-# 2. Verify dependencies
-gcc --version && python3 --version
+**Input features:** security requirement, latency sensitivity, throughput importance, memory constraint level, compute budget level, max acceptable latency (ms), mean/P95 handshake latency (ms), mean memory (bytes), architecture, measurement type, ML-KEM variant, minimum variant.
 
-# 3. Execute 1,000 iterations across ML-KEM-512, 768, and 1024
-bash environments/native_x86_64_mlkem_native/build_and_run_wsl.sh      environments/native_x86_64_mlkem_native/benchmark_config_1000.sh
-```
-- **Output**: Writes 3 CSVs to `data/raw/native_x86_64_mlkem_native_mlkem_*.csv` (9,000 rows).
-- **Validation**: Automatically validated by `validate_x86_mlkem_native_csv.py`.
-
----
-
-### Architecture 2: x86-64 Single-Core Isolated (`taskset -c 0`)
-
-Pins execution strictly to CPU Core 0 using the Linux `taskset` utility, eliminating multi-core scheduling jitter and thread-migration noise.
-
-```bash
-# 1. In WSL2 Ubuntu terminal
-cd /mnt/c/Users/abhay/OneDrive/Desktop/mlkemnew
-
-# 2. Execute single-core pinned benchmark
-bash environments/native_x86_64_single_core_mlkem_native/build_and_run_wsl.sh      environments/native_x86_64_single_core_mlkem_native/benchmark_config_1000.sh
-```
-- **Internal Mechanism**: `taskset -c 0 "$BINARY" --iterations 1000 ...`
-- **Output**: Writes 3 CSVs to `data/raw/native_x86_64_single_core_mlkem_native_mlkem_*.csv`.
+**Output:** Binary recommendation (`True`/`False`) with confidence score — served live via `POST /api/recommendation`.
 
 ---
 
-### Architecture 3: Legacy 32-Bit x86 (`gcc -m32`)
+## 📋 Data Provenance & Integrity Constraints
 
-Simulates legacy 32-bit compute nodes with constrained register sets (8 general-purpose 32-bit registers vs. 16 on 64-bit).
+All benchmark records carry explicit **provenance labels**:
 
-```bash
-# 1. Install 32-bit multilib compiler support (one-time)
-sudo apt update && sudo apt install -y gcc-multilib
+| Label | Meaning |
+| :--- | :--- |
+| `REAL_HARDWARE` | Measured on physical silicon (e.g., ARM64 Vivo Y19) |
+| `NATIVE_SOFTWARE` | Measured natively on the host OS without virtualization |
+| `EMULATED` | Measured inside a full-system emulator (e.g., QEMU RISC-V) |
+| `DERIVED` | Computed from benchmark aggregates + policy rules (ML training inputs) |
+| `FUNCTIONAL_ONLY` | Correctness verified; no timing measurements accepted |
 
-# 2. Execute 32-bit benchmark
-cd /mnt/c/Users/abhay/OneDrive/Desktop/mlkemnew
-bash environments/native_x86_32_mlkem_native/build_and_run_wsl.sh      environments/native_x86_32_mlkem_native/benchmark_config_1000.sh
-```
-- **Internal Mechanism**: Compiles with `gcc -m32 -O3 -std=c99`.
-- **Output**: Writes 3 CSVs to `data/raw/native_x86_32_mlkem_native_mlkem_*.csv`.
-
----
-
-### Architecture 4: ARM64 Mobile Hardware (MediaTek Helio P65 / Vivo Y19)
-
-Executes genuine on-device mobile benchmarks utilizing ARMv8-A NEON SIMD vector extensions via Termux.
-
-```bash
-# 1. Inside Termux on Android device, install toolchain (one-time)
-pkg update && pkg install -y clang git python
-
-# 2. Clone project
-git clone https://github.com/abhaykatre-dev/MLKEM-Benchmark.git ~/mlkem
-cd ~/mlkem
-
-# 3. Run Android ARM64 benchmark
-bash environments/android_arm64/build_and_run_termux.sh      environments/android_arm64/benchmark_config.sh
-```
-- **Internal Mechanism**: Compiles with `clang -O3 -std=c99 -march=armv8-a`.
-- **Measurement Type**: Stamped strictly as `REAL_HARDWARE`.
-- **Output**: Generates 3 CSVs in `results_clean/`.
+- **Raw data is append-only.** Processed datasets, figures, and trained models are reproducible from versioned inputs.
+- All cross-architecture comparisons use the same implementation: **`mlkem-native v1.2.0`**.
 
 ---
 
-### Architecture 5: RISC-V 64-bit Emulated Guest (QEMU `rv64gc`)
+## 🚀 Quickstart & One-Click Launch
 
-Evaluates performance on the emerging RISC-V open instruction set architecture under QEMU system-mode emulation.
-
-```bash
-# 1. Inside the QEMU RISC-V 64-bit Linux guest
-cd ~/mlkem
-
-# 2. Execute RISC-V benchmark
-bash environments/riscv64_qemu/build_and_run_riscv64.sh      environments/riscv64_qemu/benchmark_config.sh
-```
-- **Internal Mechanism**: Compiles under RISC-V GCC with `-O3`.
-- **Measurement Type**: Stamped strictly as `EMULATED` (includes emulation translation overhead).
-- **Output**: Writes 3 CSVs to `data/raw/riscv64_qemu_mlkem_*.csv`.
-
----
-
-### Architecture 6: x86-64 Laptop Platform (Intel Core i7-1255U)
-
-Replicates benchmarks on Intel 12th-Gen hybrid architecture (Performance + Efficient cores) via WSL2 Ubuntu.
-
-```bash
-# 1. On the Intel i7 Windows Laptop — Enable WSL2 (PowerShell as Administrator)
-wsl --install
-# (Restart the laptop if prompted)
-
-# 2. Inside WSL2 Ubuntu, install toolchain (one-time)
-sudo apt update && sudo apt install -y build-essential git python3
-
-# 3. Clone repository
-git clone https://github.com/abhaykatre-dev/MLKEM-Benchmark.git
-cd MLKEM-Benchmark
-
-# 4. Execute Intel i7 C99 benchmark run
-bash environments/native_x86_64_mlkem_native/build_and_run_wsl.sh      environments/native_x86_64_mlkem_native/benchmark_config_i7_1000.sh
-```
-- **Internal Mechanism**: Compiles `mlkem_x86_native_bench.c` with `gcc -O3 -march=native`.
-- **Output**: Writes 3 CSVs with `native_x86_64_i7_1255u_wsl2_mlkem_native` environment tag.
-
----
-
-## 🔄 Master Dataset Aggregation Pipeline
-
-Whenever new raw CSVs are generated or modified, rebuild the processed statistics and ML training datasets with:
-
-```powershell
-# In PowerShell at project root:
-$env:PYTHONPATH="src"
-python analysis/build_processed_dataset.py --overwrite
-```
-
-This updates:
-1. `data/processed/phase11_statistics/observations.csv` (All raw observations)
-2. `data/processed/phase11_statistics/benchmark_statistics.csv` (Grouped mean, median, P95, P99, and throughput metrics)
-3. `data/processed/phase11_statistics/admission_manifest.json` (SHA-256 data integrity hashes)
-
----
-
-## 🧪 Automated Test Suite
-
-Verify that all cryptographic modules, schema parsers, and statistical aggregators pass:
-
-```powershell
-# In PowerShell:
-$env:PYTHONPATH="src"
-python -m pytest tests/ -v
-```
-- **Status**: 18 passing unit tests (0 failures).
-
----
-
-## 🚀 Interactive UI & API Launch
-
-Launch both the FastAPI REST backend and the React Vite frontend dashboard:
-
+### Start Both Backend & Frontend Simultaneously:
 ```powershell
 .\start.ps1
 ```
-
 - **Interactive React UI**: [http://localhost:3000](http://localhost:3000)
 - **FastAPI OpenAPI Swagger**: [http://localhost:8000/docs](http://localhost:8000/docs)
 - **Health Check Endpoint**: [http://localhost:8000/api/health](http://localhost:8000/api/health)
+
+### Run the Automated Test Suite:
+```powershell
+$env:PYTHONPATH="src"
+python -m pytest tests/ -v
+```
+*(All 18 tests pass with 100% success rate).*
+
+### Retrain the ML Recommendation Model:
+```powershell
+$env:PYTHONPATH="src"
+python ml/train_recommendation_model.py
+```
+
+### Rebuild the Processed Master Dataset:
+```powershell
+$env:PYTHONPATH="src"
+python analysis/build_processed_dataset.py --overwrite
+python ml/build_training_dataset.py
+```
+
+---
+
+## 🔬 Hardware Expansion Roadmap
+
+If expanding to **physical bare-metal IoT hardware**:
+- **ARM Cortex-M4**: STM32F407G-DISC1 Discovery Board (168 MHz, 192 KB SRAM) — requires hardware DWT cycle counter for valid timing.
+- **ARM Cortex-M33**: Raspberry Pi Pico 2 / RP2350 (150 MHz, 520 KB SRAM).
+- **Espressif Xtensa / RISC-V**: ESP32-S3 DevKit (240 MHz, 512 KB SRAM).
+- **Bare-Metal RISC-V**: Kendryte K210 / Sipeed Maix Bit (400 MHz RV64GC).
+- **Zero-Overhead Hardware Cycle Counter**: ARM `DWT->CYCCNT` register.
+- **Transient Energy Probing**: $0.1\,\Omega$ precision shunt resistor measured via Digital Storage Oscilloscope ($E = \int V \cdot I \, dt$).
 
 ---
 

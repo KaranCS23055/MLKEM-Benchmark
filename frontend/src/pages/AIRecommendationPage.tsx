@@ -17,8 +17,10 @@ const DEFAULT_INPUTS: RecommendationFormInputs = {
   latencyBudget: 8000,
 };
 
-// Hardware presets matching our 5 benchmark environments
+// Hardware presets matching our benchmark environments
 const HARDWARE_PRESETS = [
+  { label: 'Intel Core i7-1255U Windows (2600 MHz / 16 GB)', mcu: 'i7-1255U-x86_64', frequency: 2600, ram: 16384, flash: 512000 },
+  { label: 'Intel Core i7-1255U Single Core (2600 MHz / 16 GB)', mcu: 'i7-1255U-single-core', frequency: 2600, ram: 16384, flash: 512000 },
   { label: 'STM32F407 Cortex-M4 (168 MHz / 192 KB)',  mcu: 'STM32F407VGT6', frequency: 168,  ram: 192,   flash: 1024   },
   { label: 'AMD Ryzen 5 x86-64 (3000 MHz / 16 GB)',   mcu: 'Ryzen5-x86_64', frequency: 3000, ram: 16384, flash: 512000 },
   { label: 'AMD Ryzen 5 x86-32 (3000 MHz / 4 GB)',    mcu: 'Ryzen5-x86_32', frequency: 3000, ram: 4096,  flash: 256000 },

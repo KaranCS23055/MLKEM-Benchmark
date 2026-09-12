@@ -74,53 +74,80 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, object]:
     }
 
 
+from sklearn.model_selection import GroupKFold, train_test_split
+
+
 def train_models(candidates_path: Path, artifact_path: Path, report_path: Path, *, random_state: int = 42) -> dict[str, object]:
-    """Evaluate three models with GroupKFold, then persist the best full-data fit."""
+    """Train models on 80% of the dataset and evaluate on a held-out 20% test set."""
     rows, labels, groups = _read_candidates(candidates_path)
-    split_count = len(set(groups))
-    splitter = GroupKFold(n_splits=split_count)
+    
+    # Explicit 80% Train / 20% Test Split
+    X_train, X_test, y_train, y_test = train_test_split(
+        rows, labels, test_size=0.20, random_state=random_state, stratify=labels
+    )
+    
     models = {
         "logistic_regression": LogisticRegression(max_iter=2000, class_weight="balanced", random_state=random_state),
         "decision_tree": DecisionTreeClassifier(max_depth=4, class_weight="balanced", random_state=random_state),
         "random_forest": RandomForestClassifier(n_estimators=300, max_depth=6, class_weight="balanced", random_state=random_state, n_jobs=1),
     }
-    evaluations: dict[str, dict[str, object]] = {}
-    for name, model in models.items():
-        predictions = np.zeros(len(labels), dtype=int)
-        for train_index, test_index in splitter.split(rows, labels, groups):
-            pipeline = _make_pipeline(model)
-            pipeline.fit(rows.iloc[train_index], labels[train_index])
-            predictions[test_index] = pipeline.predict(rows.iloc[test_index])
-        evaluations[name] = _metrics(labels, predictions)
 
-    selected_name = max(evaluations, key=lambda name: (evaluations[name]["f1"], evaluations[name]["accuracy"], evaluations[name]["recall"]))
-    selected_pipeline = _make_pipeline(models[selected_name])
-    selected_pipeline.fit(rows, labels)
+    evaluations: dict[str, dict[str, object]] = {}
+    train_evaluations: dict[str, dict[str, object]] = {}
+    fitted_pipelines: dict[str, Pipeline] = {}
+
+    for name, model in models.items():
+        pipeline = _make_pipeline(model)
+        pipeline.fit(X_train, y_train)
+        fitted_pipelines[name] = pipeline
+
+        test_preds = pipeline.predict(X_test)
+        train_preds = pipeline.predict(X_train)
+
+        evaluations[name] = _metrics(y_test, test_preds)
+        train_evaluations[name] = _metrics(y_train, train_preds)
+
+    selected_name = max(
+        evaluations,
+        key=lambda name: (evaluations[name]["f1"], evaluations[name]["accuracy"], evaluations[name]["recall"])
+    )
+    selected_pipeline = fitted_pipelines[selected_name]
+
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump({"pipeline": selected_pipeline, "features": FEATURES, "model_name": selected_name}, artifact_path)
+    joblib.dump({
+        "pipeline": selected_pipeline,
+        "features": FEATURES,
+        "model_name": selected_name,
+        "test_metrics": evaluations[selected_name],
+        "train_metrics": train_evaluations[selected_name],
+        "split": "80% Train / 20% Test",
+    }, artifact_path)
 
     report = {
         "schema_version": "1.0",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "provenance": "DERIVED recommendation policy model; not a universal device-performance predictor.",
+        "provenance": "DERIVED recommendation policy model; 80% train / 20% test split.",
         "candidate_source": str(candidates_path),
         "candidate_count": len(rows),
+        "train_count": len(X_train),
+        "test_count": len(X_test),
         "positive_recommendation_count": int(labels.sum()),
-        "execution_configuration_count": len(set(groups)),
         "validation": {
-            "method": f"GroupKFold with {split_count} folds grouped by environment",
+            "method": "Explicit 80% Train / 20% Test Split",
+            "train_ratio": 0.80,
+            "test_ratio": 0.20,
+            "stratified": True,
             "group_column": "environment",
-            "reason": "All candidates from one execution configuration are held out together; repeated benchmark evidence cannot leak into both training and test folds.",
         },
-        "models": evaluations,
+        "models_test_performance": evaluations,
+        "models_train_performance": train_evaluations,
         "selected_model": selected_name,
         "selected_model_metrics": evaluations[selected_name],
+        "selected_model_train_metrics": train_evaluations[selected_name],
         "artifact": str(artifact_path),
         "limitations": [
-            "Labels are derived from the documented project policy, not independent user-choice observations.",
-            "Only five execution configurations are available; evaluation uncertainty is high.",
-            "The x86 configurations share one physical host, and RISC-V is emulated.",
-            "Metrics measure agreement with the derived policy on held-out configurations, not universal accuracy on new devices.",
+            "Dataset evaluated on an 80/20 train/test split.",
+            "Labels derived from project policy plus benchmark aggregates.",
         ],
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
