@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-09-13T07:46:44.105338+00:00",
+  "created_at_utc": "2026-09-13T09:58:49.630830+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
   },
   "row_count": 63000,
   "successful_measurement_count": 63000,
-  "statistics_group_count": 45,
+  "statistics_group_count": 63,
   "source_files": [
     {
       "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
@@ -26,47 +26,47 @@
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_1024_20260912T175940Z.csv",
-      "sha256": "8c21c201f82c3b750493360091f8db78110e8bed8c9cba8d33e5b00a271557f9",
+      "sha256": "bd23cc67e11e0f699f97115a517cf7cb6e5c39d3e6e3458f24eae056112a72e8",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_512_20260912T175940Z.csv",
-      "sha256": "19e2f14c1c8c6d9175c0653549c4d49dacd77e424acf788b27f89179ba1e30da",
+      "sha256": "b2dd5d39c6c332ed88c42622e31392026e903d5f09a291492381fe8f8b395c72",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_768_20260912T175940Z.csv",
-      "sha256": "1d123eb4267be7b481d8fc013082362e7501052c72cba1a300a98ba3db142045",
+      "sha256": "026e09640d063c96511fdaef3d6e92848dcd15a713d9abb2fcd0d30ba06bfc75",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260912T174813Z.csv",
-      "sha256": "555e8a1e95c15ef09c7f3b8544135bd46e14763f0cd3f2f88899b8f17decec0f",
+      "sha256": "d060af5b4ba201b60440b3f494639017bfa54f8dc28b9c42012f5ad1b2093421",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260913T072724Z.csv",
-      "sha256": "d9f11d494c0821b997ca0494ecef2222ba1e62770728df01fc4c549f3e19dbd8",
+      "sha256": "a8fa7a1c72276820bfa6f94215678af7da3c8ff2a3dad924e17a2b526e0d2158",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_512_20260912T174813Z.csv",
-      "sha256": "995e43f0df6f7080addbefc93d24920b7b46d112fda0087de435dc2515d7276f",
+      "sha256": "f2b4d592cbe21b5e70a9932fe12890d6445c2c2d1fc40eb2e95c20be23980c44",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_512_20260913T072724Z.csv",
-      "sha256": "0e849f77fdc256cbc6c554c887cebcd5dfaeec1ebf9a550d399276fa99c63ef6",
+      "sha256": "9c592af953d08202e01ad55f27014c0cce5385e787fadd759daa2e1802b9473b",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_768_20260912T174813Z.csv",
-      "sha256": "882566f5e543ff67431baa460791a4e4f2f07e1529882dde8fc0537f17a619ad",
+      "sha256": "685070ee643fd1fa93a324df70535b9adcbb43d4cd46faa09d6c97d119d6af58",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_768_20260913T072724Z.csv",
-      "sha256": "0e3ab92cbea3bda42f15174d26877cecbcddcc2406c556c0b7994b367b0775a3",
+      "sha256": "6184906018bfe6abe6f1a67177930bd1fb509b9ef55bb54f3d0f5c421b0619f9",
       "row_count": 3000
     },
     {
@@ -76,7 +76,7 @@
     },
     {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_1024_20260913T074611Z.csv",
-      "sha256": "c09490bcc743a81c9bb9c704e7934d1aeed3bb6aa71acfec803080f89bef3aa6",
+      "sha256": "40d3119d750e7c42204025c08f9643c477d7e38007b51412cd4bcb4bf89ace36",
       "row_count": 3000
     },
     {
@@ -86,7 +86,7 @@
     },
     {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_512_20260913T074611Z.csv",
-      "sha256": "602bf4f9da9403264e5709ae6e80c5231599f715822027f4a4c9c58fe8924724",
+      "sha256": "2fe4ddf6e4297929728e545649d08e71a6e1aa59cadb7c61f48754f8fbbcc541",
       "row_count": 3000
     },
     {
@@ -96,7 +96,7 @@
     },
     {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_768_20260913T074611Z.csv",
-      "sha256": "3e99cee992306e7d70fede259b437470341055c307039b91df11fccf1316c08b",
+      "sha256": "7a64e7d8927b711e35840d07ade552705183b9f5ae422d40bd0e61b5823775ec",
       "row_count": 3000
     },
     {
