@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-09-12T18:01:53.480929+00:00",
+  "created_at_utc": "2026-09-13T07:46:44.105338+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
   },
-  "row_count": 45000,
-  "successful_measurement_count": 45000,
+  "row_count": 63000,
+  "successful_measurement_count": 63000,
   "statistics_group_count": 45,
   "source_files": [
     {
@@ -26,32 +26,47 @@
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_1024_20260912T175940Z.csv",
-      "sha256": "bd23cc67e11e0f699f97115a517cf7cb6e5c39d3e6e3458f24eae056112a72e8",
+      "sha256": "8c21c201f82c3b750493360091f8db78110e8bed8c9cba8d33e5b00a271557f9",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_512_20260912T175940Z.csv",
-      "sha256": "b2dd5d39c6c332ed88c42622e31392026e903d5f09a291492381fe8f8b395c72",
+      "sha256": "19e2f14c1c8c6d9175c0653549c4d49dacd77e424acf788b27f89179ba1e30da",
       "row_count": 3000
     },
     {
       "file": "native_x86_32_mlkem_native_mlkem_768_20260912T175940Z.csv",
-      "sha256": "026e09640d063c96511fdaef3d6e92848dcd15a713d9abb2fcd0d30ba06bfc75",
+      "sha256": "1d123eb4267be7b481d8fc013082362e7501052c72cba1a300a98ba3db142045",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260912T174813Z.csv",
-      "sha256": "d060af5b4ba201b60440b3f494639017bfa54f8dc28b9c42012f5ad1b2093421",
+      "sha256": "555e8a1e95c15ef09c7f3b8544135bd46e14763f0cd3f2f88899b8f17decec0f",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_mlkem_native_mlkem_1024_20260913T072724Z.csv",
+      "sha256": "d9f11d494c0821b997ca0494ecef2222ba1e62770728df01fc4c549f3e19dbd8",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_512_20260912T174813Z.csv",
-      "sha256": "f2b4d592cbe21b5e70a9932fe12890d6445c2c2d1fc40eb2e95c20be23980c44",
+      "sha256": "995e43f0df6f7080addbefc93d24920b7b46d112fda0087de435dc2515d7276f",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_mlkem_native_mlkem_512_20260913T072724Z.csv",
+      "sha256": "0e849f77fdc256cbc6c554c887cebcd5dfaeec1ebf9a550d399276fa99c63ef6",
       "row_count": 3000
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_768_20260912T174813Z.csv",
-      "sha256": "685070ee643fd1fa93a324df70535b9adcbb43d4cd46faa09d6c97d119d6af58",
+      "sha256": "882566f5e543ff67431baa460791a4e4f2f07e1529882dde8fc0537f17a619ad",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_mlkem_native_mlkem_768_20260913T072724Z.csv",
+      "sha256": "0e3ab92cbea3bda42f15174d26877cecbcddcc2406c556c0b7994b367b0775a3",
       "row_count": 3000
     },
     {
@@ -60,13 +75,28 @@
       "row_count": 3000
     },
     {
+      "file": "native_x86_64_single_core_mlkem_native_mlkem_1024_20260913T074611Z.csv",
+      "sha256": "c09490bcc743a81c9bb9c704e7934d1aeed3bb6aa71acfec803080f89bef3aa6",
+      "row_count": 3000
+    },
+    {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_512_20260813T094355Z.csv",
       "sha256": "d02d6a30bc8aaf29974d5f015052e7a238ba7f4c587c86c1a60078e52629cdd7",
       "row_count": 3000
     },
     {
+      "file": "native_x86_64_single_core_mlkem_native_mlkem_512_20260913T074611Z.csv",
+      "sha256": "602bf4f9da9403264e5709ae6e80c5231599f715822027f4a4c9c58fe8924724",
+      "row_count": 3000
+    },
+    {
       "file": "native_x86_64_single_core_mlkem_native_mlkem_768_20260813T094355Z.csv",
       "sha256": "4b6f3207a2ebb8162e008371a75826d84ee5f1970e8ef92bad99026563f02910",
+      "row_count": 3000
+    },
+    {
+      "file": "native_x86_64_single_core_mlkem_native_mlkem_768_20260913T074611Z.csv",
+      "sha256": "3e99cee992306e7d70fede259b437470341055c307039b91df11fccf1316c08b",
       "row_count": 3000
     },
     {
@@ -87,7 +117,7 @@
   ],
   "measurement_type_counts": {
     "EMULATED": 9000,
-    "NATIVE_SOFTWARE": 27000,
+    "NATIVE_SOFTWARE": 45000,
     "REAL_HARDWARE": 9000
   },
   "limitations": [

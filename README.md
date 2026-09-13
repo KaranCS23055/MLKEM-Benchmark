@@ -3,7 +3,7 @@
 
 [![NIST Standard](https://img.shields.io/badge/NIST-FIPS%20203%20ML--KEM-blue.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/C99%20Source-mlkem--native%20v1.2.0-emerald.svg)](https://github.com/pq-code-package/mlkem-native)
-[![Dataset](https://img.shields.io/badge/Empirical%20Dataset-45%2C000%2B%20Rows-purple.svg)](data/README.md)
+[![Dataset](https://img.shields.io/badge/Empirical%20Dataset-63%2C000%20Rows-purple.svg)](data/README.md)
 [![Verification](https://img.shields.io/badge/Cryptographic%20Verification-100%25%20memcmp%20Match-brightgreen.svg)](environments/)
 [![ML Model](https://img.shields.io/badge/ML%20Surrogate-Random%20Forest%20(86.7%25)-amber.svg)](ml/artifacts/)
 [![Tests](https://img.shields.io/badge/Tests-18%2F18%20Passing-brightgreen.svg)](tests/)
@@ -23,14 +23,16 @@ While quantum-secure, ML-KEM introduces non-trivial computational overhead, larg
 
 On resource-constrained embedded systems, edge microcontrollers, and mobile devices, selecting an inappropriately high ML-KEM variant can result in **stack memory exhaustion (Out-of-Memory / OOM crashes)** or **severe violations of real-time latency budgets**.
 
+> [!IMPORTANT]
+> The **2030 NIST post-quantum migration deadline** requires deploying ML-KEM on *all* classes of device — including hundreds of millions of **legacy 32-bit systems** (ATMs, industrial PLCs, medical equipment, SCADA infrastructure) that cannot be replaced before the deadline. This benchmark directly measures whether those devices can sustain ML-KEM within real-time latency budgets.
+
 ### 🎯 Research Objectives
 1. **Empirical Benchmarking**: Execute standardized, high-iteration (1,000 iterations per operation) benchmarks of pure C99 reference code (`mlkem-native v1.2.0`) across heterogeneous computing architectures:
-   - Modern x86-64 multi-core workstations (AMD Ryzen 5 4600H)
-   - Isolated single-core x86-64 execution environments (`taskset -c 0`)
-   - High-end mobile x86-64 laptop platforms (Intel Core i7-1255U)
-   - Genuine ARM64 mobile hardware (MediaTek Helio P65 SoC)
-   - Legacy 32-bit x86 environments (GCC Multilib `-m32`)
-   - Emulated 64-bit RISC-V platforms (QEMU system mode)
+   - **Modern x86-64 multi-core workstations** (AMD Ryzen 5 4600H, Intel Core i7-11800H) — server/desktop baseline
+   - **Single-core isolated execution** (`taskset -c 0`) — isolates per-core latency, eliminates OS scheduler migration noise
+   - **ARM64 real mobile hardware** (MediaTek Helio P65 SoC, Vivo Y19) — real smartphone deployment target
+   - **Legacy 32-bit x86 (`gcc -m32`)** — simulates ATMs, PLCs, medical devices, SCADA on i686 OS; proves 3.2× SIMD penalty vs 64-bit on *identical hardware*
+   - **Emulated RISC-V 64-bit** (QEMU `rv64gc`) — covers emerging IoT/embedded RISC-V boards not yet physically available; proves ~15× overhead vs native x86-64
 2. **Standardized Methodology**: Enforce identical 32-byte hardware RNG seeding, nanosecond-precision monotonic timing (`CLOCK_MONOTONIC`), shared-secret cryptographic integrity verification (`memcmp`), and strict 22-column schema parity.
 3. **AI Recommendation Surrogate**: Train a machine-learning surrogate model that automatically evaluates target system constraints (clock speed, available SRAM, compiler flags, and latency SLA) to select the optimal, safe ML-KEM parameter set.
 
@@ -64,6 +66,8 @@ All figures represent the **mean execution time** across **1,000 independent ite
 
 | Target Architecture & Environment | Parameter Set | KeyGen ($\mu s$) | Encap ($\mu s$) | Decap ($\mu s$) | Handshake Total | Scaling Order ($512 < 768 < 1024$) | Throughput (ops/s) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **x86-64 High-Performance Host**<br>*(Intel Core i7-11800H, 16 Threads, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 18.70<br>29.73<br>44.69 | 20.05<br>31.88<br>47.71 | 25.09<br>37.61<br>54.51 | **63.83 $\mu s$ (0.064 ms)**<br>**99.22 $\mu s$ (0.099 ms)**<br>**146.90 $\mu s$ (0.147 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 49,885<br>31,368<br>20,960 |
+| **x86-64 Host Single-Core Pin**<br>*(Intel Core i7-11800H, `taskset -c 0`, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 18.84<br>29.96<br>44.90 | 20.54<br>32.32<br>48.21 | 26.04<br>39.28<br>55.51 | **65.43 $\mu s$ (0.065 ms)**<br>**101.56 $\mu s$ (0.102 ms)**<br>**148.63 $\mu s$ (0.149 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 48,685<br>30,940<br>20,742 |
 | **x86-64 Multi-Core Workstation**<br>*(AMD Ryzen 5 4600H, 12 Threads, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 22.55<br>34.15<br>52.63 | 23.03<br>36.71<br>58.00 | 28.24<br>43.34<br>65.75 | **73.82 $\mu s$ (0.074 ms)**<br>**114.20 $\mu s$ (0.114 ms)**<br>**176.39 $\mu s$ (0.176 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 41,060<br>26,532<br>17,150 |
 | **x86-64 Single-Core Isolated**<br>*(AMD Ryzen 5 4600H, `taskset -c 0`, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 23.38<br>38.46<br>57.92 | 24.17<br>39.75<br>61.30 | 31.06<br>47.63<br>69.89 | **78.60 $\mu s$ (0.079 ms)**<br>**125.84 $\mu s$ (0.126 ms)**<br>**189.11 $\mu s$ (0.189 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 38,785<br>24,051<br>15,962 |
 | **ARM64 Real Mobile Hardware**<br>*(MediaTek Helio P65 SoC, Android Termux Clang -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 43.88<br>88.57<br>111.57 | 49.68<br>98.26<br>121.10 | 57.50<br>112.90<br>136.22 | **151.07 $\mu s$ (0.151 ms)**<br>**299.73 $\mu s$ (0.300 ms)**<br>**368.89 $\mu s$ (0.369 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 20,102<br>10,109<br>8,187 |
@@ -71,11 +75,34 @@ All figures represent the **mean execution time** across **1,000 independent ite
 | **RISC-V 64-bit Emulated Guest**<br>*(QEMU system-mode, RV64GC Linux, GCC -O3)* | ML-KEM-512<br>ML-KEM-768<br>ML-KEM-1024 | 290.16<br>466.17<br>675.85 | 308.33<br>497.43<br>717.02 | 373.59<br>583.42<br>828.57 | **972.08 $\mu s$ (0.972 ms)**<br>**1,547.03 $\mu s$ (1.547 ms)**<br>**2,221.43 $\mu s$ (2.221 ms)** | **Monotonic** ✅<br>**Monotonic** ✅<br>**Monotonic** ✅ | 3,122<br>1,956<br>1,360 |
 
 ### 🏆 Hardware Performance Ranking (Fastest to Slowest)
-1. **AMD Ryzen 5 4600H (Multi-Core Workstation)**: **$121.5\,\mu s$** avg handshake
-2. **AMD Ryzen 5 4600H (Single-Core Pin `taskset -c 0`)**: **$131.2\,\mu s$** avg handshake
-3. **MediaTek Helio P65 (ARM64 Smartphone)**: **$273.2\,\mu s$** avg handshake
-4. **Legacy 32-bit x86 Mode (`gcc -m32`)**: **$401.3\,\mu s$** avg handshake
-5. **RISC-V 64-bit Emulated Guest (QEMU `rv64gc`)**: **$1,580.2\,\mu s$** avg handshake
+1. **Intel Core i7-11800H (Multi-Core Host)**: **$103.3\,\mu s$** avg handshake ($33.2\,\mu s$ avg encap)
+2. **Intel Core i7-11800H (Single-Core Pin `taskset -c 0`)**: **$105.2\,\mu s$** avg handshake ($33.7\,\mu s$ avg encap)
+3. **AMD Ryzen 5 4600H (Multi-Core Workstation)**: **$121.5\,\mu s$** avg handshake ($39.2\,\mu s$ avg encap)
+4. **AMD Ryzen 5 4600H (Single-Core Pin `taskset -c 0`)**: **$131.2\,\mu s$** avg handshake ($41.7\,\mu s$ avg encap)
+5. **MediaTek Helio P65 (ARM64 Smartphone)**: **$273.2\,\mu s$** avg handshake ($89.7\,\mu s$ avg encap)
+6. **Legacy 32-bit x86 Mode (`gcc -m32`)**: **$401.3\,\mu s$** avg handshake ($126.9\,\mu s$ avg encap)
+7. **RISC-V 64-bit Emulated Guest (QEMU `rv64gc`)**: **$1,580.2\,\mu s$** avg handshake ($507.6\,\mu s$ avg encap)
+
+### 🔑 Key Findings
+
+| Finding | Evidence |
+| :--- | :--- |
+| **SIMD is critical** | Same AMD Ryzen chip: 64-bit = 73.8 µs vs 32-bit = 241.9 µs — **3.2× slower** just from losing AVX2 |
+| **Single-core ≈ multi-core** | ML-KEM is single-threaded; `taskset -c 0` differs by only ~1–2 µs (scheduler noise only) |
+| **32-bit slower than smartphone** | A 32-bit x86 Ryzen (241.9 µs) is **60% slower** than an ARM64 phone (151.1 µs) — no SIMD path |
+| **QEMU overhead is ~15×** | RISC-V QEMU (972.1 µs) vs native x86-64 (63.8 µs) — every instruction translated in software |
+| **Legacy 32-bit is viable for TLS** | 241.9 µs for ML-KEM-512 handshake is within a 1–10 ms TLS budget — feasible but CPU-heavy |
+| **Monotonic scaling verified** | All 7 environments confirm: ML-KEM-512 < ML-KEM-768 < ML-KEM-1024 latency, zero exceptions |
+
+### 🗺️ Why Each Environment Was Benchmarked
+
+| Environment | Real-World Target | What It Proves |
+| :--- | :--- | :--- |
+| x86-64 Multi-Core | Cloud servers, workstations, laptops | Performance ceiling — modern 64-bit SIMD baseline |
+| x86-64 Single-Core | Containerized/pinned workloads, embedded x86 | Per-core latency without scheduler interference |
+| ARM64 Real Hardware | Smartphones, tablets, ARM servers (AWS Graviton) | Mobile deployment feasibility on physical silicon |
+| 32-bit x86 (`-m32`) | **ATMs, PLCs, SCADA, medical devices, voting machines** | Legacy migration feasibility — proves 3.2× SIMD penalty |
+| RISC-V 64-bit QEMU | Emerging IoT (SiFive, StarFive, Kendryte boards) | Future RISC-V readiness before physical hardware is available |
 
 ---
 

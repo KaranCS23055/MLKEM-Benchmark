@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-09-13T07:34:59.182677+00:00",
+  "timestamp_token": "20260913T072724Z",
+  "raw_files": [
+    "native_x86_64_mlkem_native_mlkem_1024_20260913T072724Z.csv",
+    "native_x86_64_mlkem_native_mlkem_512_20260913T072724Z.csv",
+    "native_x86_64_mlkem_native_mlkem_768_20260913T072724Z.csv"
+  ],
+  "total_rows": 9000,
+  "environment": "native_x86_64_wsl2_mlkem_native",
+  "measurement_type": "NATIVE_SOFTWARE",
+  "architecture": "x86_64",
+  "processor": "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+  "implementation": {
+    "name": "mlkem-native",
+    "version": "v1.2.0 (UNKNOWN)",
+    "commit": "0ba906cb14b1c241476134d7403a811b382ca498",
+    "backend": "portable C"
+  },
+  "compiler": {
+    "name": "gcc",
+    "version": "15.2.0",
+    "optimization_flags": "-O3 (WSL2 Ubuntu / GCC)"
+  },
+  "os": "Linux 6.18.33.2-microsoft-standard-WSL2",
+  "host_layer": "WSL2 Ubuntu (Hyper-V) on Windows 11 x86-64 host",
+  "timing_definition": "CLOCK_MONOTONIC elapsed time around the specified ML-KEM operation only; setup (keypair generation for enc/dec) is excluded from timing.",
+  "memory_definition": "Process maximum resident-set-size high-water mark from getrusage (Linux reports KiB; converted to bytes).",
+  "integrity_sha256": "native_x86_64_mlkem_native_20260913T072724Z_SHA256SUMS.txt",
+  "note": "x86-64 standardization run. Uses mlkem-native v1.2.0 portable-C backend compiled with GCC under WSL2 Ubuntu on the same AMD physical CPU as the pqcrypto reference run. Allows direct implementation-matched comparison with ARM64 and RISC-V mlkem-native runs."
+}

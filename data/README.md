@@ -1,6 +1,6 @@
 # 📊 NIST FIPS 203 ML-KEM Empirical Benchmark Dataset
 
-[![Dataset Size](https://img.shields.io/badge/Active%20Measurements-45%2C000%20Rows-blue.svg)](raw/)
+[![Dataset Size](https://img.shields.io/badge/Active%20Measurements-63%2C000%20Rows-blue.svg)](raw/)
 [![Integrity](https://img.shields.io/badge/SHA--256-Verified%20Manifests-emerald.svg)](metadata/)
 [![Standard](https://img.shields.io/badge/NIST%20Standard-FIPS%20203%20ML--KEM-purple.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/Source-mlkem--native%20v1.2.0%20(Pure%20C99)-amber.svg)](https://github.com/pq-code-package/mlkem-native)
@@ -19,11 +19,11 @@ Every single measurement in this dataset is an **empirical execution record** pr
 
 ```text
 data/
-├── raw/                         # 15 immutable, verified raw CSV benchmark files (45,000 rows)
+├── raw/                         # 21 immutable, verified raw CSV benchmark files (63,000 rows)
 ├── metadata/                    # SHA-256 checksums and execution environment manifests
 └── processed/
     ├── phase11_statistics/      # Normalized observations and 45-group statistics summary
-    │   ├── observations.csv     # Complete 45,000-row master empirical dataset
+    │   ├── observations.csv     # Complete 63,000-row master empirical dataset
     │   ├── benchmark_statistics.csv # Grouped Mean, Median, StdDev, P95, P99 metrics
     │   └── admission_manifest.json
     └── phase11_training/        # Feature-engineered training data & model evaluation metrics
@@ -33,30 +33,40 @@ data/
 
 ---
 
-## 🗂️ Verified Raw Dataset Inventory (15 CSV Files — 45,000 Rows)
+## 🗂️ Verified Raw Dataset Inventory (21 CSV Files — 63,000 Rows)
 
 Each file contains **3,000 rows** (1,000 iterations × 3 operations: KeyGen, Encapsulation, Decapsulation):
 
 | File Name | Hardware / SoC | Architecture | Variant | Rows | Size |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `android_vivo_y19_mlkem_512_*.csv` | MediaTek Helio P65 | `aarch64` | ML-KEM-512 | 3,000 | 1.09 MB |
-| `android_vivo_y19_mlkem_768_*.csv` | MediaTek Helio P65 | `aarch64` | ML-KEM-768 | 3,000 | 1.09 MB |
-| `android_vivo_y19_mlkem_1024_*.csv` | MediaTek Helio P65 | `aarch64` | ML-KEM-1024 | 3,000 | 1.10 MB |
-| `native_x86_64_mlkem_native_mlkem_512_*.csv` | AMD Ryzen 5 4600H | `x86_64` | ML-KEM-512 | 3,000 | 1.24 MB |
-| `native_x86_64_mlkem_native_mlkem_768_*.csv` | AMD Ryzen 5 4600H | `x86_64` | ML-KEM-768 | 3,000 | 1.24 MB |
-| `native_x86_64_mlkem_native_mlkem_1024_*.csv` | AMD Ryzen 5 4600H | `x86_64` | ML-KEM-1024 | 3,000 | 1.24 MB |
-| `native_x86_64_single_core_*_512_*.csv` | AMD Ryzen 5 (taskset -c 0) | `x86_64` | ML-KEM-512 | 3,000 | 1.35 MB |
-| `native_x86_64_single_core_*_768_*.csv` | AMD Ryzen 5 (taskset -c 0) | `x86_64` | ML-KEM-768 | 3,000 | 1.35 MB |
-| `native_x86_64_single_core_*_1024_*.csv`| AMD Ryzen 5 (taskset -c 0) | `x86_64` | ML-KEM-1024 | 3,000 | 1.35 MB |
+| `native_x86_64_mlkem_native_mlkem_512_20260913T072724Z.csv` | Intel Core i7-11800H | `x86_64` | ML-KEM-512 | 3,000 | 1.17 MB |
+| `native_x86_64_mlkem_native_mlkem_768_20260913T072724Z.csv` | Intel Core i7-11800H | `x86_64` | ML-KEM-768 | 3,000 | 1.17 MB |
+| `native_x86_64_mlkem_native_mlkem_1024_20260913T072724Z.csv` | Intel Core i7-11800H | `x86_64` | ML-KEM-1024 | 3,000 | 1.17 MB |
+| `native_x86_64_single_core_mlkem_native_mlkem_512_20260913T074611Z.csv` | Intel Core i7-11800H (Single-Core) | `x86_64` | ML-KEM-512 | 3,000 | 1.17 MB |
+| `native_x86_64_single_core_mlkem_native_mlkem_768_20260913T074611Z.csv` | Intel Core i7-11800H (Single-Core) | `x86_64` | ML-KEM-768 | 3,000 | 1.17 MB |
+| `native_x86_64_single_core_mlkem_native_mlkem_1024_20260913T074611Z.csv` | Intel Core i7-11800H (Single-Core) | `x86_64` | ML-KEM-1024 | 3,000 | 1.17 MB |
+| `native_x86_64_mlkem_native_mlkem_512_20260912T174813Z.csv` | AMD Ryzen 5 4600H | `x86_64` | ML-KEM-512 | 3,000 | 1.24 MB |
+| `native_x86_64_mlkem_native_mlkem_768_20260912T174813Z.csv` | AMD Ryzen 5 4600H | `x86_64` | ML-KEM-768 | 3,000 | 1.24 MB |
+| `native_x86_64_mlkem_native_mlkem_1024_20260912T174813Z.csv` | AMD Ryzen 5 4600H | `x86_64` | ML-KEM-1024 | 3,000 | 1.24 MB |
+| `native_x86_64_single_core_*_512_20260813T094355Z.csv` | AMD Ryzen 5 4600H (Single-Core) | `x86_64` | ML-KEM-512 | 3,000 | 1.35 MB |
+| `native_x86_64_single_core_*_768_20260813T094355Z.csv` | AMD Ryzen 5 4600H (Single-Core) | `x86_64` | ML-KEM-768 | 3,000 | 1.35 MB |
+| `native_x86_64_single_core_*_1024_20260813T094355Z.csv` | AMD Ryzen 5 4600H (Single-Core) | `x86_64` | ML-KEM-1024 | 3,000 | 1.35 MB |
 | `native_x86_32_mlkem_native_mlkem_512_*.csv` | 32-bit x86 (i686 Multilib) | `x86` | ML-KEM-512 | 3,000 | 1.28 MB |
 | `native_x86_32_mlkem_native_mlkem_768_*.csv` | 32-bit x86 (i686 Multilib) | `x86` | ML-KEM-768 | 3,000 | 1.28 MB |
 | `native_x86_32_mlkem_native_mlkem_1024_*.csv`| 32-bit x86 (i686 Multilib) | `x86` | ML-KEM-1024 | 3,000 | 1.28 MB |
+| `android_vivo_y19_mlkem_512_*.csv` | MediaTek Helio P65 | `aarch64` | ML-KEM-512 | 3,000 | 1.09 MB |
+| `android_vivo_y19_mlkem_768_*.csv` | MediaTek Helio P65 | `aarch64` | ML-KEM-768 | 3,000 | 1.09 MB |
+| `android_vivo_y19_mlkem_1024_*.csv` | MediaTek Helio P65 | `aarch64` | ML-KEM-1024 | 3,000 | 1.10 MB |
 | `riscv64_qemu_mlkem_512_*.csv` | RV64GC Linux Guest | `riscv64` | ML-KEM-512 | 3,000 | 1.07 MB |
 | `riscv64_qemu_mlkem_768_*.csv` | RV64GC Linux Guest | `riscv64` | ML-KEM-768 | 3,000 | 1.07 MB |
 | `riscv64_qemu_mlkem_1024_*.csv`| RV64GC Linux Guest | `riscv64` | ML-KEM-1024 | 3,000 | 1.07 MB |
-| **TOTAL VERIFIED DATASET** | **5 Environments** | **4 Architectures**| **All 3 Variants** | **45,000** | **~18.5 MB** |
+| **TOTAL VERIFIED DATASET** | **7 Configurations** | **4 Architectures**| **All 3 Variants** | **63,000** | **~25.6 MB** |
 
-> **Note on Intel Core i7-1255U**: Previous historical Python-wrapper (`pqcrypto`) data has been quarantined. The clean pure C99 benchmark for Intel i7 can be generated via `environments/native_x86_64_mlkem_native/benchmark_config_i7_1000.sh` to add 9,000 additional verified rows.
+> [!NOTE]
+> **Legacy 32-bit x86 (`native_x86_32`)**: Benchmarked on the same AMD Ryzen 5 4600H host using `gcc -m32 -O3` (i686 mode). This simulates real-world legacy systems — ATMs, industrial PLCs, SCADA, and medical devices — running 32-bit OS. The `gcc -m32` flag disables AVX2 SIMD, causing a **3.2× slowdown** vs 64-bit mode on identical hardware. ML-KEM-512 at 241.9 µs remains TLS-viable; ML-KEM-1024 at 590.6 µs is tight for real-time use. Required for the NIST 2030 post-quantum migration deadline assessment.
+
+> [!NOTE]
+> **RISC-V QEMU (`riscv64_qemu`)**: Run inside a QEMU `rv64gc` Linux guest — not real silicon. Every RISC-V instruction is dynamically translated by QEMU (DBT), producing ~15× overhead vs native x86-64. Labeled `EMULATED` throughout. Results serve as a readiness baseline for emerging RISC-V IoT boards (SiFive, StarFive, Kendryte) not yet available in this project's hardware inventory.
 
 ---
 
