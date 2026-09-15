@@ -84,7 +84,7 @@ Define six project-designed profiles: Banking/Financial Services, IoT, Cloud/Dat
 
 ## Phase 11 — ML recommendation pipeline ✅ COMPLETE
 
-Built a validated, provenance-preserving derived observation table and grouped statistics from `data/raw/`. Combined benchmark aggregates with project-defined application profiles to generate training candidates. Trained a Random Forest Classifier using 5-fold `GroupKFold` cross-validation grouped strictly by execution environment. Persisted the model to `ml/artifacts/recommendation_policy_model.joblib`. Achieved **86.67% Test Accuracy** and **0.786 Weighted F1-Score**. Integrated model into `backend/ai_engine.py` for live sub-millisecond inference.
+Built a validated, provenance-preserving derived observation table and grouped statistics from `data/raw/`. Combined benchmark aggregates with project-defined application profiles to generate training candidates. Trained a Random Forest Classifier using a stratified 80/20 holdout split. Persisted the model to `ml/artifacts/recommendation_policy_model.joblib`. Current evaluation achieves **72.73% Test Accuracy** and **0.667 F1-Score**. Integrated model into `backend/ai_engine.py` for live sub-millisecond inference.
 
 **Exit criteria met:** Saved joblib model passes automated inference tests and exposes live confidence, latency compliance, and empirical explanations.
 

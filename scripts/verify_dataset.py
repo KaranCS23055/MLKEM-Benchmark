@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import json
 from pathlib import Path
 from mlkem_benchmark.validation import validate_raw_directory
@@ -50,7 +51,31 @@ def main():
     if manifest_file.exists():
         with manifest_file.open(encoding="utf-8") as f:
             manifest = json.load(f)
-        print(f" [PASS] admission_manifest.json found")
+        manifest_errors = []
+        raw_sources = {path.name: path for path in raw_dir.glob("*.csv")}
+        manifest_sources = manifest.get("source_files", [])
+        listed_sources = {entry.get("file") for entry in manifest_sources}
+        for name, path in raw_sources.items():
+            if name not in listed_sources:
+                manifest_errors.append(f"unlisted raw file: {name}")
+        for entry in manifest_sources:
+            name = entry.get("file")
+            path = raw_sources.get(name)
+            if path is None:
+                manifest_errors.append(f"missing raw file: {name}")
+                continue
+            with path.open(newline="", encoding="utf-8") as source:
+                source_rows = sum(1 for _ in source) - 1
+            if source_rows != entry.get("row_count"):
+                manifest_errors.append(f"row count mismatch: {name}")
+            if hashlib.sha256(path.read_bytes()).hexdigest() != entry.get("sha256"):
+                manifest_errors.append(f"SHA-256 mismatch: {name}")
+        if manifest_errors:
+            print(f" [FAIL] admission_manifest.json mismatch ({len(manifest_errors)} error(s))")
+            for error in manifest_errors[:5]:
+                print(f"        * {error}")
+        else:
+            print(f" [PASS] admission_manifest.json found and verified")
         print(f"        - Recorded row count        : {manifest.get('row_count'):,}")
         print(f"        - Successful measurements   : {manifest.get('successful_measurement_count'):,}")
         print(f"        - Group count               : {manifest.get('statistics_group_count')}")
@@ -89,7 +114,8 @@ def main():
                 print(f" * Environment: {env:<45} | Arch: {arch:<8} | Type: {norm_type}")
 
     print("=" * 80)
-    print("VERIFICATION RESULT: " + ("SUCCESS (DATASET IS CONSISTENT & COMPLETE)" if error_count == 0 and obs_rows == total_rows else "FAILED"))
+    manifest_ok = not manifest_file.exists() or not manifest_errors
+    print("VERIFICATION RESULT: " + ("SUCCESS (DATASET IS CONSISTENT & COMPLETE)" if error_count == 0 and obs_rows == total_rows and manifest_ok else "FAILED"))
     print("=" * 80)
 
 if __name__ == "__main__":

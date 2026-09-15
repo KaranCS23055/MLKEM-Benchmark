@@ -28,9 +28,9 @@ export const ProcessorsPage: React.FC = () => {
             <Cpu className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Supported Microcontroller Hardware Profiles</h1>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Evaluated Hardware Silicon Profiles</h1>
             <p className="text-xs text-slate-500">
-              Technical hardware profiles for STM32F0, STM32F4, STM32H7, nRF52840, and HiFive1 target platforms
+              Empirical hardware profiles across 5 physical silicon targets (Intel i7-11800H, AMD Ryzen 5 4600H, AMD Ryzen 3 7320U, MediaTek Helio P65, ESP8266EX)
             </p>
           </div>
         </div>
@@ -57,10 +57,10 @@ export const ProcessorsPage: React.FC = () => {
               onChange={(e) => setSelectedArch(e.target.value)}
               className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 font-medium outline-none"
             >
-              <option value="ALL">All Architectures (ARM, RISC-V, Xtensa)</option>
-              <option value="ARM Cortex-M">ARM Cortex-M (M0, M4, M7)</option>
-              <option value="RISC-V">RISC-V (RV32, FE310)</option>
-              <option value="Xtensa">Xtensa (ESP32 LX6)</option>
+              <option value="ALL">All Architectures (x86_64, aarch64, xtensa_lx106)</option>
+              <option value="x86_64">x86-64 (Intel & AMD Processors)</option>
+              <option value="aarch64">ARM64 (MediaTek Mobile SoC)</option>
+              <option value="xtensa_lx106">Xtensa (ESP8266 Microcontroller)</option>
             </select>
           </div>
         </div>

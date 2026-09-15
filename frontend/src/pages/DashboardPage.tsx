@@ -53,7 +53,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       try {
         const [analyticsRes, benchmarksRes, processorsRes] = await Promise.all([
           fetch('/api/analytics'),
-          fetch('/api/benchmarks?type=full'),
+          fetch('/api/benchmarks?type=baseline'),
           fetch('/api/processors'),
         ]);
         if (analyticsRes.ok)  setAnalytics(await analyticsRes.json());

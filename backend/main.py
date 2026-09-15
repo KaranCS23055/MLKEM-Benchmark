@@ -54,13 +54,21 @@ def _dataset_path() -> Path:
     return Path(configured_path) if configured_path else root_dir / "data" / "processed" / "phase11_statistics" / "observations.csv"
 
 
+_DATASET_ROWS_CACHE: Optional[List[Dict[str, str]]] = None
+_BENCHMARK_RECORDS_CACHE: Optional[List[Dict[str, Any]]] = None
+
+
 def _load_dataset() -> List[Dict[str, str]]:
+    global _DATASET_ROWS_CACHE
+    if _DATASET_ROWS_CACHE is not None:
+        return _DATASET_ROWS_CACHE
     dataset_path = _dataset_path()
     if not dataset_path.exists():
         raise HTTPException(status_code=404, detail=f"Benchmark dataset not found: {dataset_path}")
     try:
         with dataset_path.open(mode="r", newline="", encoding="utf-8") as handle:
-            return list(csv.DictReader(handle))
+            _DATASET_ROWS_CACHE = list(csv.DictReader(handle))
+            return _DATASET_ROWS_CACHE
     except OSError as exc:
         raise HTTPException(status_code=500, detail=f"Failed to load benchmark dataset: {exc}") from exc
 
@@ -122,6 +130,15 @@ def _benchmark_record(row: Dict[str, str], index: int) -> Dict[str, Any]:
     }
 
 
+def _get_cached_benchmark_records() -> List[Dict[str, Any]]:
+    global _BENCHMARK_RECORDS_CACHE
+    if _BENCHMARK_RECORDS_CACHE is not None:
+        return _BENCHMARK_RECORDS_CACHE
+    rows = _load_dataset()
+    _BENCHMARK_RECORDS_CACHE = [_benchmark_record(row, index) for index, row in enumerate(rows)]
+    return _BENCHMARK_RECORDS_CACHE
+
+
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(url="/docs")
@@ -145,8 +162,7 @@ async def get_recommendation(inputs: RecommendationFormInputs):
 @app.get("/api/benchmarks", tags=["Benchmarks"])
 @app.get("/benchmarks", include_in_schema=False)
 async def get_benchmarks(type: Optional[str] = Query("baseline", description="'baseline' or 'full'")):
-    rows = _load_dataset()
-    records = [_benchmark_record(row, index) for index, row in enumerate(rows)]
+    records = _get_cached_benchmark_records()
     return records[:1500] if type == "baseline" else records
 
 
@@ -155,73 +171,47 @@ async def get_benchmarks(type: Optional[str] = Query("baseline", description="'b
 async def get_processors():
     return [
         {
-            "mcu": "native_x86_64_i7_1255u_windows",
-            "name": "Intel Core i7-1255U (x86_64 Windows Multi-Core)",
-            "core": "x86_64 (10 Cores, 12 Threads)",
+            "mcu": "Intel Core i7-11800H",
+            "name": "Intel Core i7-11800H Workstation",
+            "core": "x86_64 (8 Cores / 16 Threads)",
             "architecture": "x86_64",
-            "frequency": 2600,
+            "frequency": 4600,
             "ram": 16384,
             "flash": 512000,
             "voltage": "1.2V",
             "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "Native Windows Intel Core i7 12th Gen processor benchmark environment.",
-            "features": ["AVX2", "FMA3", "Hybrid P/E Cores", "Windows 11 Host"],
+            "description": "High-performance 11th Gen Intel Core i7 workstation processor with AVX2 vector extensions evaluated via WSL2 Ubuntu.",
+            "features": ["AVX2 SIMD", "8 Cores / 16 Threads", "4.60 GHz Turbo", "WSL2 Linux Host"],
         },
         {
-            "mcu": "native_x86_64_i7_1255u_windows_single_core",
-            "name": "Intel Core i7-1255U (x86_64 Windows Single-Core Pinned)",
-            "core": "x86_64 (Single Thread Pinned)",
+            "mcu": "AMD Ryzen 5 4600H",
+            "name": "AMD Ryzen 5 4600H Mid-Range Laptop",
+            "core": "x86_64 (6 Cores / 12 Threads)",
             "architecture": "x86_64",
-            "frequency": 2600,
+            "frequency": 4000,
             "ram": 16384,
             "flash": 512000,
             "voltage": "1.2V",
             "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "Deterministic single-core pinned Windows execution configuration.",
-            "features": ["Process Affinity Masking", "Deterministic Cache", "AVX2"],
+            "description": "Mainstream 6-core / 12-thread AMD Ryzen mobile processor with AVX2 vector units evaluated via WSL2 Ubuntu.",
+            "features": ["AVX2 SIMD", "6 Cores / 12 Threads", "4.00 GHz Boost", "WSL2 Linux Host"],
         },
         {
-            "mcu": "x86_64-multi-core",
-            "name": "AMD Ryzen 5 4600H (x86-64 Multi-Core WSL2)",
-            "core": "x86_64",
+            "mcu": "AMD Ryzen 3 7320U",
+            "name": "AMD Ryzen 3 7320U Budget Laptop",
+            "core": "x86_64 (4 Cores / 8 Threads)",
             "architecture": "x86_64",
-            "frequency": 3000,
-            "ram": 16384,
-            "flash": 512000,
-            "voltage": "1.2V",
-            "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "High-performance multi-core x86-64 server & workstation node.",
-            "features": ["AVX2", "BMI2", "6-Core 12-Thread"],
-        },
-        {
-            "mcu": "x86_64-single-core",
-            "name": "AMD Ryzen 5 4600H (Single-Core Pin taskset -c 0 WSL2)",
-            "core": "x86_64",
-            "architecture": "x86_64",
-            "frequency": 3000,
-            "ram": 16384,
-            "flash": 512000,
-            "voltage": "1.2V",
-            "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "Single-core pinned x86-64 execution environment eliminating core hopping.",
-            "features": ["Core Affinity Pinning", "AVX2", "Deterministic Cache"],
-        },
-        {
-            "mcu": "x86-32bit-mode",
-            "name": "32-bit x86 (i686 Multilib GCC -m32)",
-            "core": "x86-32",
-            "architecture": "x86",
-            "frequency": 3000,
-            "ram": 4096,
+            "frequency": 4100,
+            "ram": 8192,
             "flash": 256000,
             "voltage": "1.2V",
             "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "Legacy 32-bit x86 execution environment for embedded x86 compatibility.",
-            "features": ["i686 ABI", "32-bit Register File", "Multilib C Run-Time"],
+            "description": "Budget laptop processor (4 Cores / 8 Threads) evaluated via Linux 6.6 WSL2 Ubuntu with GCC 13.3.",
+            "features": ["AVX2 SIMD", "4 Cores / 8 Threads", "4.10 GHz Boost", "8GB LPDDR5"],
         },
         {
-            "mcu": "aarch64-vivo-y19",
-            "name": "MediaTek Helio P65 MT6768 (Vivo Y19 Phone)",
+            "mcu": "MediaTek Helio P65",
+            "name": "MediaTek Helio P65 MT6768 (Vivo Y19)",
             "core": "ARM Cortex-A75 / A55",
             "architecture": "aarch64",
             "frequency": 2000,
@@ -229,34 +219,21 @@ async def get_processors():
             "flash": 128000,
             "voltage": "3.8V",
             "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "Physical ARM64 mobile hardware running Linux Termux & Clang 18.1.",
-            "features": ["NEON SIMD", "ARMv8.2-A", "Real Physical Mobile Hardware"],
+            "description": "Physical 64-bit ARM mobile smartphone SoC evaluated natively via Android Termux and Clang 18.1.",
+            "features": ["NEON SIMD", "ARMv8.2-A", "8 Cores (Big.LITTLE)", "Real Smartphone Silicon"],
         },
         {
-            "mcu": "riscv64-qemu-guest",
-            "name": "RISC-V 64-bit QEMU Linux Guest",
-            "core": "RV64GC",
-            "architecture": "riscv64",
-            "frequency": 1000,
-            "ram": 2096,
-            "flash": 64000,
-            "voltage": "3.3V",
-            "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
-            "description": "64-bit RISC-V open ISA virtualized Linux environment.",
-            "features": ["RV64GC Vector-ready", "Open ISA Standard", "GCC 13.3 Linux Guest"],
-        },
-        {
-            "mcu": "cortex-m4-stm32f4",
-            "name": "STM32F407 Cortex-M4 Microcontroller",
-            "core": "ARM Cortex-M4F",
-            "architecture": "armv7em",
-            "frequency": 168,
-            "ram": 192,
-            "flash": 1024,
+            "mcu": "ESP8266EX",
+            "name": "Espressif ESP8266EX IoT Microcontroller",
+            "core": "Xtensa LX106",
+            "architecture": "xtensa_lx106",
+            "frequency": 80,
+            "ram": 80,
+            "flash": 4096,
             "voltage": "3.3V",
             "supportedVariants": ["ML-KEM-512", "ML-KEM-768"],
-            "description": "Embedded ARM Cortex-M4 microcontroller for IoT edge hardware verification.",
-            "features": ["DSP & FPU", "Functional Pass Verification", "Zero-Wait Flash"],
+            "description": "Resource-constrained 32-bit RISC microcontroller with 80 KB SRAM evaluating FIPS 203 ML-KEM.",
+            "features": ["80MHz Tensilica Core", "80KB SRAM", "Hardware WDT Guard", "Real IoT Silicon"],
         },
     ]
 
@@ -328,7 +305,7 @@ async def get_analytics():
         "avgEncapLatencyUs": round(sum(encapsulations) / len(encapsulations) / 1000, 2) if encapsulations else 0.0,
         "supportedProcessors": len({row.get("environment") for row in rows}),
         "mlkemVariants": len({row.get("mlkem_variant") for row in rows}),
-        "aiAccuracyPercent": 84.62,
+        "aiAccuracyPercent": 72.73,
     }
 
 

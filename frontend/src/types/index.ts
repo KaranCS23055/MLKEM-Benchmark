@@ -56,7 +56,7 @@ export interface ProcessorProfile {
   mcu: string;
   name: string;
   core: string;
-  architecture: 'ARM Cortex-M' | 'RISC-V' | 'Xtensa';
+  architecture: 'x86_64' | 'aarch64' | 'xtensa_lx106' | 'ARM Cortex-M' | 'RISC-V' | 'Xtensa' | string;
   frequency: number; // MHz
   ram: number; // KB
   flash: number; // KB
@@ -81,6 +81,7 @@ export interface MLKEMVariantSpec {
 
 export interface RecommendationFormInputs {
   mcu: string;
+  architecture: string;
   frequency: number; // MHz
   ram: number; // KB
   flash: number; // KB

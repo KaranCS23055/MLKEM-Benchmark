@@ -187,8 +187,8 @@ def _ml_inference(inputs: RecommendationFormInputs) -> RecommendationResult | No
                 "mean_handshake_latency_ms": mean_hs,
                 "p95_handshake_latency_ms":  mean_hs * 1.15,
                 "mean_memory_bytes":        float(_RAM_REQ[v] * 1024),
-                "architecture":             "x86_64",
-                "measurement_type":         "NATIVE_SOFTWARE",
+                "architecture":             inputs.architecture,
+                "measurement_type":         "REAL_HARDWARE" if inputs.architecture == "aarch64" else "NATIVE_SOFTWARE",
                 "mlkem_variant":            v,
                 "minimum_variant":          min_variant,
             })
@@ -224,7 +224,7 @@ def _ml_inference(inputs: RecommendationFormInputs) -> RecommendationResult | No
             )
         else:
             reason = (
-                f"Random Forest surrogate model (Accuracy 84.6%, 80/20 Split F1 0.778) "
+                f"Random Forest surrogate model (Accuracy 72.7%, 80/20 Split F1 0.667) "
                 f"selected {chosen} with {confidence}% confidence based on your hardware "
                 f"profile ({inputs.ram} KB SRAM, {inputs.frequency} MHz, {inputs.securityLevel} security), "
                 f"measured benchmark aggregates, and application profile policy."
@@ -249,7 +249,13 @@ def _rule_based(inputs: RecommendationFormInputs) -> RecommendationResult:
         reason = f"ML-KEM-1024 selected for NIST Level 5 security ({ram} KB SRAM ≥ 28 KB requirement)."
     elif sec in ("Level 3", "Level 5") and ram >= 20:
         chosen, confidence = "ML-KEM-768", 96.2
-        reason = f"ML-KEM-768 selected for balanced Level 3 security on {ram} KB SRAM."
+        if sec == "Level 5":
+            reason = (
+                f"ML-KEM-768 selected as the highest-security variant fitting in {ram} KB SRAM. "
+                "ML-KEM-1024 requested for Level 5 exceeds available RAM."
+            )
+        else:
+            reason = f"ML-KEM-768 selected for balanced Level 3 security on {ram} KB SRAM."
     else:
         chosen, confidence = "ML-KEM-512", 98.1
         reason = f"ML-KEM-512 selected for stack safety on {ram} KB SRAM."
