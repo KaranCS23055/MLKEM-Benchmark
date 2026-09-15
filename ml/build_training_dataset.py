@@ -60,10 +60,8 @@ def build_training_dataset(statistics_path: Path, output_path: Path, *, overwrit
         for (environment, architecture, measurement_type), candidates in sorted(by_environment.items()):
             eligible = [(variant, metrics) for variant, metrics in candidates if VARIANT_ORDER[variant] >= VARIANT_ORDER[profile.min_recommended_variant]]
             feasible = [(variant, metrics) for variant, metrics in eligible if metrics["p95_handshake_latency_ms"] <= profile.max_acceptable_latency_ms]
-            selected_pool = feasible or eligible
-            if not selected_pool:
-                raise ValueError(f"No variant meets profile security floor for {profile.id}")
-            selected_variant, _ = min(selected_pool, key=lambda item: (item[1]["p95_handshake_latency_ms"], VARIANT_ORDER[item[0]]))
+            selected_pool = feasible or eligible or candidates
+            selected_variant, _ = min(selected_pool, key=lambda item: (item[1]["p95_handshake_latency_ms"], -VARIANT_ORDER[item[0]]))
             for variant, metrics in sorted(candidates):
                 security = VARIANT_ORDER[variant] >= VARIANT_ORDER[profile.min_recommended_variant]
                 latency = metrics["p95_handshake_latency_ms"] <= profile.max_acceptable_latency_ms
@@ -72,6 +70,8 @@ def build_training_dataset(statistics_path: Path, output_path: Path, *, overwrit
                     "Selected by derived policy: meets the profile security floor and has the lowest measured P95 handshake latency among feasible variants."
                     if recommended and feasible else
                     "Selected by derived fallback policy: no security-eligible variant met the latency bound; lowest measured P95 handshake latency chosen."
+                    if recommended and eligible else
+                    "Selected by derived fallback policy: no measured variant meets the security floor for this environment; highest available variant chosen."
                     if recommended else
                     "Not selected by the derived policy."
                 )

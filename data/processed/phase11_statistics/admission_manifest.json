@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-09-15T08:57:56.718526+00:00",
+  "created_at_utc": "2026-09-15T11:30:45.488700+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
   },
-  "row_count": 27000,
-  "successful_measurement_count": 27000,
-  "statistics_group_count": 27,
+  "row_count": 27270,
+  "successful_measurement_count": 27270,
+  "statistics_group_count": 30,
   "source_files": [
     {
       "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
@@ -23,6 +23,11 @@
       "file": "android_vivo_y19_mlkem_768_20260812T204804Z.csv",
       "sha256": "0b296f6f525ed9912d28c05cfa3e30bd47ebdef0123bb3ba31037cc5c8d004f5",
       "row_count": 3000
+    },
+    {
+      "file": "esp8266_xtensa_lx106_arduino_mlkem_512_20260915T161500Z.csv",
+      "sha256": "82a31e5de278e388d30db7ab7914005278c8ada92453439e03091034a71b9ed7",
+      "row_count": 270
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260912T174813Z.csv",
@@ -57,7 +62,7 @@
   ],
   "measurement_type_counts": {
     "NATIVE_SOFTWARE": 18000,
-    "REAL_HARDWARE": 9000
+    "REAL_HARDWARE": 9270
   },
   "limitations": [
     "Timing values from different execution types must not be pooled as equivalent hardware performance.",
