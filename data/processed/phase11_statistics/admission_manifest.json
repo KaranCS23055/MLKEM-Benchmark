@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-09-15T10:53:43.150002+00:00",
+  "created_at_utc": "2026-09-15T19:10:02.471043+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
   },
-  "row_count": 36000,
-  "successful_measurement_count": 36000,
-  "statistics_group_count": 36,
+  "row_count": 36540,
+  "successful_measurement_count": 36540,
+  "statistics_group_count": 42,
   "source_files": [
     {
       "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
@@ -25,6 +25,16 @@
       "row_count": 3000
     },
     {
+      "file": "esp8266_xtensa_lx106_arduino_mlkem_512_20260915T161500Z.csv",
+      "sha256": "caf490666a9d4f5a6e3d121e503d1f7dcc014e290e199e8b52ea23b1581a37d0",
+      "row_count": 270
+    },
+    {
+      "file": "esp8266_xtensa_lx106_arduino_mlkem_768_20260915T180200Z.csv",
+      "sha256": "bf2cec349adebee2f4bfcad0353a5dfd1730cb568935273ff5351e36e2c66a7f",
+      "row_count": 270
+    },
+    {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260912T174813Z.csv",
       "sha256": "555e8a1e95c15ef09c7f3b8544135bd46e14763f0cd3f2f88899b8f17decec0f",
       "row_count": 3000
@@ -36,7 +46,7 @@
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_1024_20260915T105249Z.csv",
-      "sha256": "6fb6d540a4e517c20a42545a6f3208043d59838c42c3597468091681cf16422a",
+      "sha256": "c6e91552276d8ff527bcdba3566d3699963eab16943b6a4732cbc137924b91d3",
       "row_count": 3000
     },
     {
@@ -51,7 +61,7 @@
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_512_20260915T105249Z.csv",
-      "sha256": "8bd769ad48ac5230c808de27921fc95585ab482123f21276a3848f275987ef25",
+      "sha256": "fc2aa387dacaeb1806fc736757fe91a393f552a61233ce5cfd27e8aab3389e13",
       "row_count": 3000
     },
     {
@@ -66,13 +76,13 @@
     },
     {
       "file": "native_x86_64_mlkem_native_mlkem_768_20260915T105249Z.csv",
-      "sha256": "40a1a16a8586105768a850219ec51716d418d8fe385a05061ef0b044da700695",
+      "sha256": "6d395e650a5c42e4bc50023a24efa7536aedd5aa934073f5a5a6f3b0e4e4c3ce",
       "row_count": 3000
     }
   ],
   "measurement_type_counts": {
     "NATIVE_SOFTWARE": 27000,
-    "REAL_HARDWARE": 9000
+    "REAL_HARDWARE": 9540
   },
   "limitations": [
     "Timing values from different execution types must not be pooled as equivalent hardware performance.",

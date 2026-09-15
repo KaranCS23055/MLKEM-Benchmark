@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-09-15T16:15:00.000000+00:00",
+  "timestamp_token": "20260915T161500Z",
+  "raw_files": [
+    "esp8266_xtensa_lx106_arduino_mlkem_512_20260915T161500Z.csv"
+  ],
+  "total_rows": 270,
+  "environment": "esp8266_xtensa_lx106_arduino",
+  "measurement_type": "NATIVE_HARDWARE",
+  "architecture": "xtensa_lx106",
+  "processor": "ESP8266EX Xtensa LX106 @ 80MHz",
+  "implementation": {
+    "name": "mlkem-native",
+    "version": "v1.2.0",
+    "commit": "2507ff79a0acfec6e94a9a83709b5774491fdbb6",
+    "backend": "portable C99"
+  },
+  "compiler": {
+    "name": "xtensa-lx106-elf-gcc",
+    "version": "xtensa-lx106-elf-gcc (Espressif)",
+    "optimization_flags": "-O2"
+  },
+  "os": "FreeRTOS (ESP8266 RTOS via Arduino Core)",
+  "host_layer": "Bare-metal microcontroller with FreeRTOS tick scheduler",
+  "timing_definition": "system_get_time() / micros() high-resolution microsecond timer around ML-KEM operations, converted to nanoseconds.",
+  "memory_definition": "System free heap high-water mark via system_get_free_heap_size() / ESP.getFreeHeap() in bytes.",
+  "integrity_sha256": "esp8266_xtensa_lx106_arduino_20260915T161500Z_SHA256SUMS.txt",
+  "note": "ESP8266 IoT physical silicon benchmark. Evaluated strictly on ML-KEM-512 due to 80KB SRAM boundary. All operations verified with 100% cryptographic memcmp match."
+}
