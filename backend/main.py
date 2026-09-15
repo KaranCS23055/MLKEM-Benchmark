@@ -328,7 +328,7 @@ async def get_analytics():
         "avgEncapLatencyUs": round(sum(encapsulations) / len(encapsulations) / 1000, 2) if encapsulations else 0.0,
         "supportedProcessors": len({row.get("environment") for row in rows}),
         "mlkemVariants": len({row.get("mlkem_variant") for row in rows}),
-        "aiAccuracyPercent": 84.62,
+        "aiAccuracyPercent": 72.73,
     }
 
 

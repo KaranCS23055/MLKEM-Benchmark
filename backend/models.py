@@ -3,6 +3,7 @@ from typing import List, Optional, Union, Literal
 
 class RecommendationFormInputs(BaseModel):
     mcu: Optional[str] = "STM32F407VGT6"
+    architecture: str = Field(default="x86_64", description="Target instruction-set architecture")
     frequency: int = Field(..., description="Clock frequency in MHz", ge=1, le=10000)
     ram: int = Field(..., description="SRAM capacity in KB", ge=1)
     flash: Optional[int] = Field(default=1024, description="Flash capacity in KB")

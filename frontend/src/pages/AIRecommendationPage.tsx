@@ -8,6 +8,7 @@ import { BrainCircuit, Cpu, Sliders, Shield, Sparkles, Loader2, ServerOff } from
 // Default hardware preset: STM32F407 Cortex-M4
 const DEFAULT_INPUTS: RecommendationFormInputs = {
   mcu: 'STM32F407VGT6',
+  architecture: 'aarch64',
   frequency: 168,
   ram: 192,
   flash: 1024,
@@ -19,14 +20,14 @@ const DEFAULT_INPUTS: RecommendationFormInputs = {
 
 // Hardware presets matching our benchmark environments
 const HARDWARE_PRESETS = [
-  { label: 'Intel Core i7-1255U Windows (2600 MHz / 16 GB)', mcu: 'i7-1255U-x86_64', frequency: 2600, ram: 16384, flash: 512000 },
-  { label: 'Intel Core i7-1255U Single Core (2600 MHz / 16 GB)', mcu: 'i7-1255U-single-core', frequency: 2600, ram: 16384, flash: 512000 },
-  { label: 'STM32F407 Cortex-M4 (168 MHz / 192 KB)',  mcu: 'STM32F407VGT6', frequency: 168,  ram: 192,   flash: 1024   },
-  { label: 'AMD Ryzen 5 x86-64 (3000 MHz / 16 GB)',   mcu: 'Ryzen5-x86_64', frequency: 3000, ram: 16384, flash: 512000 },
-  { label: 'AMD Ryzen 5 x86-32 (3000 MHz / 4 GB)',    mcu: 'Ryzen5-x86_32', frequency: 3000, ram: 4096,  flash: 256000 },
-  { label: 'MediaTek Helio P65 ARM64 (2000 MHz / 4 GB)', mcu: 'VivoY19-aarch64', frequency: 2000, ram: 4096, flash: 128000 },
-  { label: 'RISC-V QEMU RV64GC (1000 MHz / 2 GB)',    mcu: 'RISCV64-QEMU', frequency: 1000, ram: 2096,  flash: 64000  },
-  { label: 'Custom Target',                            mcu: 'Custom',        frequency: 80,   ram: 64,    flash: 512    },
+  { label: 'Intel Core i7-1255U Windows (2600 MHz / 16 GB)', architecture: 'x86_64', mcu: 'i7-1255U-x86_64', frequency: 2600, ram: 16384, flash: 512000 },
+  { label: 'Intel Core i7-1255U Single Core (2600 MHz / 16 GB)', architecture: 'x86_64', mcu: 'i7-1255U-single-core', frequency: 2600, ram: 16384, flash: 512000 },
+  { label: 'STM32F407 Cortex-M4 (168 MHz / 192 KB)', architecture: 'aarch64', mcu: 'STM32F407VGT6', frequency: 168, ram: 192, flash: 1024 },
+  { label: 'AMD Ryzen 5 x86-64 (3000 MHz / 16 GB)', architecture: 'x86_64', mcu: 'Ryzen5-x86_64', frequency: 3000, ram: 16384, flash: 512000 },
+  { label: 'AMD Ryzen 5 x86-32 (3000 MHz / 4 GB)', architecture: 'x86_64', mcu: 'Ryzen5-x86_32', frequency: 3000, ram: 4096, flash: 256000 },
+  { label: 'MediaTek Helio P65 ARM64 (2000 MHz / 4 GB)', architecture: 'aarch64', mcu: 'VivoY19-aarch64', frequency: 2000, ram: 4096, flash: 128000 },
+  { label: 'RISC-V QEMU RV64GC (1000 MHz / 2 GB)', architecture: 'riscv64', mcu: 'RISCV64-QEMU', frequency: 1000, ram: 2096, flash: 64000 },
+  { label: 'Custom Target', architecture: 'x86_64', mcu: 'Custom', frequency: 80, ram: 64, flash: 512 },
 ];
 
 export const AIRecommendationPage: React.FC = () => {

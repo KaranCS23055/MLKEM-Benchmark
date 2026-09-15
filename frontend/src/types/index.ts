@@ -81,6 +81,7 @@ export interface MLKEMVariantSpec {
 
 export interface RecommendationFormInputs {
   mcu: string;
+  architecture: string;
   frequency: number; // MHz
   ram: number; // KB
   flash: number; // KB

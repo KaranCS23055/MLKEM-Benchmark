@@ -2,19 +2,16 @@
 
 This registry is the authoritative admission record for benchmark data. `data/raw/` contains only standardized, valid `mlkem-native v1.2.0` measurements. Historical or calibration files are archived separately under `data/archive/`.
 
-## Admitted benchmark datasets (63,000 rows total)
+## Admitted benchmark datasets (36,000 rows total)
 
-All 63,000 admitted rows use the same **`mlkem-native v1.2.0`** implementation and the same operation protocol. They are comparable for implementation-level analysis, but timings from different execution types must **not** be pooled or claimed as equivalent physical-hardware performance.
+All 36,000 admitted rows use the same **`mlkem-native v1.2.0`** implementation and the same operation protocol. They are comparable for implementation-level analysis, but timings from different execution types must **not** be pooled or claimed as equivalent physical-hardware performance.
 
 | Environment ID | Architecture | Execution Type | Compiler | Rows | Real-World Target | Key Finding |
 | --- | --- | --- | --- | ---: | --- | --- |
-| `native_x86_64_wsl2_mlkem_native` | `x86_64` | `NATIVE_SOFTWARE` | GCC 15.2 | 18,000 | Cloud servers, workstations, laptops | Performance ceiling: 63.8 µs ML-KEM-512 handshake |
-| `native_x86_64_single_core_wsl2_mlkem_native` | `x86_64` | `NATIVE_SOFTWARE` | GCC 15.2 | 18,000 | CPU-pinned containers, embedded x86 | Multi-core ≈ single-core: ML-KEM is single-threaded |
-| `native_x86_32_wsl2_mlkem_native` | `x86` | `NATIVE_SOFTWARE` | GCC 15.2 (`-m32`) | 9,000 | **ATMs, PLCs, SCADA, medical devices** | 3.2× slower than 64-bit — no AVX2; still TLS-viable at 241.9 µs |
-| `android_vivo_y19_termux` | `aarch64` | `REAL_HARDWARE`¹ | Clang 18.1 | 9,000 | Android smartphones, ARM servers | Mobile feasibility: 151.1 µs real-silicon handshake |
-| `riscv64_qemu_linux` | `riscv64` | `EMULATED` | GCC 13.3 | 9,000 | Emerging RISC-V IoT/embedded boards | ~15× QEMU overhead; baseline for future real-hardware comparison |
+| `native_x86_64_mlkem_native` | `x86_64` | `NATIVE_SOFTWARE` | GCC | 27,000 | Cloud servers, workstations, laptops | Current native x86-64 measurements |
+| `android_vivo_y19_termux` | `aarch64` | `REAL_HARDWARE`¹ | Clang | 9,000 | Android smartphones, ARM servers | Mobile real-silicon measurements |
 
-**Total admitted observations: 63,000 across 7 distinct execution configurations.** The x86-64 multi-core, x86-64 single-core, and x86-32 configurations share physical host hardware; they are not three independent devices. Intel i7-11800H and AMD Ryzen 5 4600H data are merged under the same environment ID but distinguished by the `processor` field in each CSV. RISC-V is emulated.
+**Total admitted observations: 36,000 across the currently admitted x86-64 and Android configurations.** Historical, single-core, 32-bit x86, and RISC-V records remain outside the current admitted raw dataset and must not be presented as current measurements.
 
 > [!NOTE]
 > **Why 32-bit?** The NIST 2030 post-quantum migration deadline applies to *all* device classes. Hundreds of millions of ATMs, industrial PLCs, SCADA systems, and medical devices run 32-bit OS and cannot be replaced before 2030. The `native_x86_32` environment directly measures ML-KEM feasibility on those systems — proving ML-KEM-512 is viable (241.9 µs) but ML-KEM-1024 is tight (590.6 µs) for real-time use.

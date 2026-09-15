@@ -1,6 +1,6 @@
 # 📊 NIST FIPS 203 ML-KEM Empirical Benchmark Dataset
 
-[![Dataset Size](https://img.shields.io/badge/Active%20Measurements-63%2C000%20Rows-blue.svg)](raw/)
+[![Dataset Size](https://img.shields.io/badge/Active%20Measurements-36%2C000%20Rows-blue.svg)](raw/)
 [![Integrity](https://img.shields.io/badge/SHA--256-Verified%20Manifests-emerald.svg)](metadata/)
 [![Standard](https://img.shields.io/badge/NIST%20Standard-FIPS%20203%20ML--KEM-purple.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/Source-mlkem--native%20v1.2.0%20(Pure%20C99)-amber.svg)](https://github.com/pq-code-package/mlkem-native)
@@ -19,11 +19,11 @@ Every single measurement in this dataset is an **empirical execution record** pr
 
 ```text
 data/
-├── raw/                         # 21 immutable, verified raw CSV benchmark files (63,000 rows)
+├── raw/                         # 12 immutable, verified raw CSV benchmark files (36,000 rows)
 ├── metadata/                    # SHA-256 checksums and execution environment manifests
 └── processed/
-    ├── phase11_statistics/      # Normalized observations and 45-group statistics summary
-    │   ├── observations.csv     # Complete 63,000-row master empirical dataset
+   ├── phase11_statistics/      # Normalized observations and 36-group statistics summary
+   │   ├── observations.csv     # Complete 36,000-row master empirical dataset
     │   ├── benchmark_statistics.csv # Grouped Mean, Median, StdDev, P95, P99 metrics
     │   └── admission_manifest.json
     └── phase11_training/        # Feature-engineered training data & model evaluation metrics
@@ -33,7 +33,9 @@ data/
 
 ---
 
-## 🗂️ Verified Raw Dataset Inventory (21 CSV Files — 63,000 Rows)
+## 🗂️ Historical Raw Dataset Inventory
+
+The detailed inventory below describes earlier archived runs. The current admitted raw dataset is defined by `data/processed/phase11_statistics/admission_manifest.json` and contains 12 files and 36,000 rows.
 
 Each file contains **3,000 rows** (1,000 iterations × 3 operations: KeyGen, Encapsulation, Decapsulation):
 

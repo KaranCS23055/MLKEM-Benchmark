@@ -33,7 +33,7 @@ On resource-constrained embedded systems, edge microcontrollers, and mobile devi
    - Legacy 32-bit x86 mode (i686 Multilib GCC `-m32`)
    - Emulated 64-bit RISC-V platform (QEMU system-mode `rv64gc`)
 2. **Standardized Methodology**: Identical 32-byte hardware RNG seeding, nanosecond-precision monotonic timing (`CLOCK_MONOTONIC`), shared-secret cryptographic integrity verification (`memcmp`), and strict 22-column schema parity.
-3. **AI Recommendation Surrogate**: A Random Forest surrogate model (**92.3% Accuracy**, **0.875 F1-Score**) that automatically evaluates target system constraints (clock speed, available SRAM, compiler flags, and latency SLA) to select the optimal, safe ML-KEM parameter set.
+3. **AI Recommendation Surrogate**: A Random Forest surrogate model (**72.73% Accuracy**, **0.667 F1-Score**) that automatically evaluates target system constraints (clock speed, available SRAM, compiler flags, and latency SLA) to select the optimal, safe ML-KEM parameter set.
 
 ---
 
@@ -106,8 +106,8 @@ The AI recommendation engine is a **Random Forest Classifier** trained on empiri
 | **Max Tree Depth** | `max_depth = 6` |
 | **Class Weighting** | `balanced` |
 | **Validation Strategy** | Stratified 80% Train / 20% Test Split |
-| **Test Accuracy** | **92.31%** |
-| **Weighted F1-Score** | **0.875** |
+| **Test Accuracy** | **72.73%** |
+| **Weighted F1-Score** | **0.667** |
 | **Model Artifact** | `ml/artifacts/recommendation_policy_model.joblib` |
 
 ---
