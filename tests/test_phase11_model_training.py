@@ -19,7 +19,7 @@ class Phase11ModelTrainingTests(unittest.TestCase):
             report = train_models(candidates, temp_path / "model.joblib", temp_path / "report.json")
             self.assertIn(report["selected_model"], {"logistic_regression", "decision_tree", "random_forest"})
             self.assertEqual(report["validation"]["group_column"], "environment")
-            self.assertEqual(report["candidate_count"], 126)
+            self.assertEqual(report["candidate_count"], len(candidates.read_text(encoding="utf-8").strip().splitlines()) - 1)
             self.assertTrue((temp_path / "model.joblib").exists())
             stored = json.loads((temp_path / "report.json").read_text(encoding="utf-8"))
             self.assertIn("limitations", stored)

@@ -1,9 +1,9 @@
 {
   "provenance": "DERIVED / project-defined profile policy plus measured benchmark aggregates",
-  "candidate_count": 126,
-  "recommended_count": 42,
+  "candidate_count": 54,
+  "recommended_count": 18,
   "profile_count": 6,
-  "execution_configuration_count": 7,
+  "execution_configuration_count": 3,
   "source_statistics": "C:\\Users\\abhay\\OneDrive\\Desktop\\mlkemnew\\data\\processed\\phase11_statistics\\benchmark_statistics.csv",
   "output": "C:\\Users\\abhay\\OneDrive\\Desktop\\mlkemnew\\data\\processed\\phase11_training\\recommendation_candidates.csv",
   "limitations": [
