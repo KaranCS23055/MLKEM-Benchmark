@@ -1,8 +1,7 @@
 """Train and evaluate transparent recommendation-policy surrogate models.
 
 The target is a project-derived policy label, not an observed human decision.
-Evaluation keeps whole execution configurations together, preventing repeated
-candidates from the same configuration appearing in both train and test sets.
+Evaluation uses an explicit stratified random 80/20 train/test split.
 """
 
 from __future__ import annotations
@@ -74,7 +73,7 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, object]:
     }
 
 
-from sklearn.model_selection import GroupKFold, train_test_split
+from sklearn.model_selection import train_test_split
 
 
 def train_models(candidates_path: Path, artifact_path: Path, report_path: Path, *, random_state: int = 42) -> dict[str, object]:
@@ -137,7 +136,8 @@ def train_models(candidates_path: Path, artifact_path: Path, report_path: Path, 
             "train_ratio": 0.80,
             "test_ratio": 0.20,
             "stratified": True,
-            "group_column": "environment",
+            "group_column": None,
+            "group_separation": False,
         },
         "models_test_performance": evaluations,
         "models_train_performance": train_evaluations,
@@ -148,6 +148,7 @@ def train_models(candidates_path: Path, artifact_path: Path, report_path: Path, 
         "limitations": [
             "Dataset evaluated on an 80/20 train/test split.",
             "Labels derived from project policy plus benchmark aggregates.",
+            "Execution environments are not held out as groups; the split is stratified and random.",
         ],
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -164,7 +165,7 @@ def main() -> None:
     args = parser.parse_args()
     report = train_models(args.candidates, args.artifact, args.report)
     metrics = report["selected_model_metrics"]
-    print(f"Selected {report['selected_model']} with grouped F1={metrics['f1']:.4f}, accuracy={metrics['accuracy']:.4f}")
+    print(f"Selected {report['selected_model']} with test F1={metrics['f1']:.4f}, accuracy={metrics['accuracy']:.4f}")
 
 
 if __name__ == "__main__":

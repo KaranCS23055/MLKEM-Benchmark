@@ -1,76 +1,77 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-09-15T19:15:38.356651+00:00",
+  "created_at_utc": "2026-09-16T13:26:23.015489+00:00",
   "provenance": "DERIVED recommendation policy model; 80% train / 20% test split.",
   "candidate_source": "C:\\Users\\KARAN PRAJAPATI\\OneDrive\\Desktop\\MLKEM-Benchmark\\data\\processed\\phase11_training\\recommendation_candidates.csv",
-  "candidate_count": 84,
-  "train_count": 67,
-  "test_count": 17,
-  "positive_recommendation_count": 30,
+  "candidate_count": 102,
+  "train_count": 81,
+  "test_count": 21,
+  "positive_recommendation_count": 36,
   "validation": {
     "method": "Explicit 80% Train / 20% Test Split",
     "train_ratio": 0.8,
     "test_ratio": 0.2,
     "stratified": true,
-    "group_column": "environment"
+    "group_column": null,
+    "group_separation": false
   },
   "models_test_performance": {
     "logistic_regression": {
-      "accuracy": 0.4117647058823529,
-      "precision": 0.3333333333333333,
-      "recall": 0.6666666666666666,
-      "f1": 0.4444444444444444,
+      "accuracy": 0.47619047619047616,
+      "precision": 0.25,
+      "recall": 0.2857142857142857,
+      "f1": 0.26666666666666666,
       "confusion_matrix_labels": [
         "not_recommended",
         "recommended"
       ],
       "confusion_matrix": [
         [
-          3,
-          8
+          8,
+          6
         ],
         [
-          2,
-          4
+          5,
+          2
         ]
       ]
     },
     "decision_tree": {
-      "accuracy": 0.7058823529411765,
-      "precision": 0.5454545454545454,
-      "recall": 1.0,
-      "f1": 0.7058823529411765,
+      "accuracy": 0.7142857142857143,
+      "precision": 0.5555555555555556,
+      "recall": 0.7142857142857143,
+      "f1": 0.625,
       "confusion_matrix_labels": [
         "not_recommended",
         "recommended"
       ],
       "confusion_matrix": [
         [
-          6,
-          5
+          10,
+          4
         ],
         [
-          0,
-          6
+          2,
+          5
         ]
       ]
     },
     "random_forest": {
-      "accuracy": 0.8235294117647058,
-      "precision": 0.7142857142857143,
-      "recall": 0.8333333333333334,
-      "f1": 0.7692307692307693,
+      "accuracy": 0.9047619047619048,
+      "precision": 1.0,
+      "recall": 0.7142857142857143,
+      "f1": 0.8333333333333334,
       "confusion_matrix_labels": [
         "not_recommended",
         "recommended"
       ],
       "confusion_matrix": [
         [
-          9,
-          2
+          14,
+          0
         ],
         [
-          1,
+          2,
           5
         ]
       ]
@@ -78,42 +79,42 @@
   },
   "models_train_performance": {
     "logistic_regression": {
-      "accuracy": 0.5671641791044776,
-      "precision": 0.43243243243243246,
-      "recall": 0.6666666666666666,
-      "f1": 0.5245901639344263,
+      "accuracy": 0.6172839506172839,
+      "precision": 0.47368421052631576,
+      "recall": 0.6206896551724138,
+      "f1": 0.5373134328358209,
       "confusion_matrix_labels": [
         "not_recommended",
         "recommended"
       ],
       "confusion_matrix": [
         [
-          22,
-          21
+          32,
+          20
         ],
         [
-          8,
-          16
+          11,
+          18
         ]
       ]
     },
     "decision_tree": {
-      "accuracy": 0.8208955223880597,
-      "precision": 0.6666666666666666,
-      "recall": 1.0,
-      "f1": 0.8,
+      "accuracy": 0.7407407407407407,
+      "precision": 0.5869565217391305,
+      "recall": 0.9310344827586207,
+      "f1": 0.72,
       "confusion_matrix_labels": [
         "not_recommended",
         "recommended"
       ],
       "confusion_matrix": [
         [
-          31,
-          12
+          33,
+          19
         ],
         [
-          0,
-          24
+          2,
+          27
         ]
       ]
     },
@@ -128,33 +129,33 @@
       ],
       "confusion_matrix": [
         [
-          43,
+          52,
           0
         ],
         [
           0,
-          24
+          29
         ]
       ]
     }
   },
   "selected_model": "random_forest",
   "selected_model_metrics": {
-    "accuracy": 0.8235294117647058,
-    "precision": 0.7142857142857143,
-    "recall": 0.8333333333333334,
-    "f1": 0.7692307692307693,
+    "accuracy": 0.9047619047619048,
+    "precision": 1.0,
+    "recall": 0.7142857142857143,
+    "f1": 0.8333333333333334,
     "confusion_matrix_labels": [
       "not_recommended",
       "recommended"
     ],
     "confusion_matrix": [
       [
-        9,
-        2
+        14,
+        0
       ],
       [
-        1,
+        2,
         5
       ]
     ]
@@ -170,18 +171,19 @@
     ],
     "confusion_matrix": [
       [
-        43,
+        52,
         0
       ],
       [
         0,
-        24
+        29
       ]
     ]
   },
   "artifact": "C:\\Users\\KARAN PRAJAPATI\\OneDrive\\Desktop\\MLKEM-Benchmark\\ml\\artifacts\\recommendation_policy_model.joblib",
   "limitations": [
     "Dataset evaluated on an 80/20 train/test split.",
-    "Labels derived from project policy plus benchmark aggregates."
+    "Labels derived from project policy plus benchmark aggregates.",
+    "Execution environments are not held out as groups; the split is stratified and random."
   ]
 }

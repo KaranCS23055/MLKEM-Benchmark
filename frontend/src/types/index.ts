@@ -89,6 +89,7 @@ export interface RecommendationFormInputs {
   optimization: OptimizationLevel;
   cpuLoad: number; // Percentage 0-75%
   latencyBudget: number; // us
+  applicationProfile?: string;
 }
 
 export interface RecommendationResult {
@@ -101,10 +102,28 @@ export interface RecommendationResult {
   estimatedRamKb: number;
   ramUtilizationPercent: number;
   latencyCompliance: 'EXCELLENT' | 'COMPLIANT' | 'WARNING' | 'EXCEEDED';
+  latencyBudgetUs?: number;
   comparisonBadges: {
     label: string;
     value: string;
     type: 'success' | 'warning' | 'info' | 'error';
+  }[];
+  applicationProfile?: string;
+  modelName?: string;
+  variantEvaluations?: {
+    variant: MLKEMVariant | 'UNSUPPORTED';
+    status: string;
+    statusLabel: string;
+    securityMatch: boolean;
+    ramMatch: boolean;
+    latencyMatch: boolean;
+    reason: string;
+    benchmarkCoverage: string;
+    estimatedKeygenUs: number;
+    estimatedEncapUs: number;
+    estimatedDecapUs: number;
+    estimatedRamKb: number;
+    nistCategory: string;
   }[];
 }
 

@@ -499,12 +499,12 @@ export const BENCHMARK_DATASET: BenchmarkRecord[] = [
 ];
 
 export const DASHBOARD_STATS: DashboardStats = {
-  totalBenchmarks: 36540,
-  processorsSupported: 5,
+  totalBenchmarks: 37914,
+  processorsSupported: 6,
   mlkemVariantsCount: 3,
-  avgExecutionTimeUs: 7842,
-  aiAccuracyPercent: 82.35,
-  totalPasses: 36540,
+  avgExecutionTimeUs: 641.9,
+  aiAccuracyPercent: 90.48,
+  totalPasses: 37914,
   totalOOMs: 0
 };
 

@@ -3,30 +3,39 @@ import { RecommendationFormInputs, RecommendationResult, SecurityLevel, Optimiza
 import { Card } from '../components/ui/Card';
 import { RecommendationCard } from '../components/ui/RecommendationCard';
 import { Button } from '../components/ui/Button';
-import { BrainCircuit, Cpu, Sliders, Shield, Sparkles, Loader2, ServerOff } from 'lucide-react';
+import { BrainCircuit, Cpu, Sliders, Shield, Sparkles, Loader2, ServerOff, ArrowLeft } from 'lucide-react';
 
-// Default hardware preset: STM32F407 Cortex-M4
+// Default hardware preset: a physically benchmarked target.
 const DEFAULT_INPUTS: RecommendationFormInputs = {
-  mcu: 'STM32F407VGT6',
-  architecture: 'aarch64',
-  frequency: 168,
-  ram: 192,
-  flash: 1024,
+  mcu: 'Intel Core i7-11800H',
+  architecture: 'x86_64',
+  frequency: 4600,
+  ram: 16384,
+  flash: 512000,
   securityLevel: 'Level 3',
   optimization: 'O3',
   cpuLoad: 25,
   latencyBudget: 8000,
+  applicationProfile: 'general',
 };
 
-// Hardware presets matching our benchmark environments
+const APPLICATION_PROFILES = [
+  ['general', 'General / custom deployment'],
+  ['banking_finance', 'Banking & Financial Services'],
+  ['iot_embedded', 'IoT & Resource-Constrained Embedded'],
+  ['cloud_datacenter', 'Cloud & High-Throughput Data Center'],
+  ['mobile_edge', 'Mobile & Edge Devices'],
+  ['healthcare_hipaa', 'Healthcare & Patient Records'],
+  ['government_defense', 'Government & Critical Infrastructure'],
+] as const;
+
+// Only verified physical targets are selectable here. QEMU and unmeasured demo hardware are excluded.
 const HARDWARE_PRESETS = [
-  { label: 'Intel Core i7-1255U Windows (2600 MHz / 16 GB)', architecture: 'x86_64', mcu: 'i7-1255U-x86_64', frequency: 2600, ram: 16384, flash: 512000 },
-  { label: 'Intel Core i7-1255U Single Core (2600 MHz / 16 GB)', architecture: 'x86_64', mcu: 'i7-1255U-single-core', frequency: 2600, ram: 16384, flash: 512000 },
-  { label: 'STM32F407 Cortex-M4 (168 MHz / 192 KB)', architecture: 'aarch64', mcu: 'STM32F407VGT6', frequency: 168, ram: 192, flash: 1024 },
-  { label: 'AMD Ryzen 5 x86-64 (3000 MHz / 16 GB)', architecture: 'x86_64', mcu: 'Ryzen5-x86_64', frequency: 3000, ram: 16384, flash: 512000 },
-  { label: 'AMD Ryzen 5 x86-32 (3000 MHz / 4 GB)', architecture: 'x86_64', mcu: 'Ryzen5-x86_32', frequency: 3000, ram: 4096, flash: 256000 },
-  { label: 'MediaTek Helio P65 ARM64 (2000 MHz / 4 GB)', architecture: 'aarch64', mcu: 'VivoY19-aarch64', frequency: 2000, ram: 4096, flash: 128000 },
-  { label: 'RISC-V QEMU RV64GC (1000 MHz / 2 GB)', architecture: 'riscv64', mcu: 'RISCV64-QEMU', frequency: 1000, ram: 2096, flash: 64000 },
+  { label: 'Intel Core i7-11800H (4600 MHz / 16 GB)', architecture: 'x86_64', mcu: 'Intel Core i7-11800H', frequency: 4600, ram: 16384, flash: 512000 },
+  { label: 'AMD Ryzen 5 4600H (4000 MHz / 16 GB)', architecture: 'x86_64', mcu: 'AMD Ryzen 5 4600H', frequency: 4000, ram: 16384, flash: 512000 },
+  { label: 'AMD Ryzen 3 7320U (4100 MHz / 8 GB)', architecture: 'x86_64', mcu: 'AMD Ryzen 3 7320U', frequency: 4100, ram: 8192, flash: 256000 },
+  { label: 'MediaTek Helio P65 / Vivo Y19 (2000 MHz / 4 GB)', architecture: 'aarch64', mcu: 'MediaTek Helio P65', frequency: 2000, ram: 4096, flash: 128000 },
+  { label: 'ESP8266EX Xtensa LX106 (80 MHz / 80 KB SRAM)', architecture: 'xtensa_lx106', mcu: 'ESP8266EX', frequency: 80, ram: 80, flash: 4096 },
   { label: 'Custom Target', architecture: 'x86_64', mcu: 'Custom', frequency: 80, ram: 64, flash: 512 },
 ];
 
@@ -36,13 +45,15 @@ export const AIRecommendationPage: React.FC = () => {
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [modelInfo, setModelInfo] = useState<string>('');
+  const [showRecommendation, setShowRecommendation] = useState(false);
 
   // Auto-run once on mount with defaults
-  useEffect(() => { runRecommendation(DEFAULT_INPUTS); }, []);
+  useEffect(() => { runRecommendation(DEFAULT_INPUTS, false); }, []);
 
-  const runRecommendation = async (inputs: RecommendationFormInputs) => {
+  const runRecommendation = async (inputs: RecommendationFormInputs, reveal = true) => {
     setIsLoading(true);
     setApiError(null);
+    if (reveal) setShowRecommendation(true);
     try {
       const res = await fetch('/api/recommendation', {
         method: 'POST',
@@ -58,6 +69,7 @@ export const AIRecommendationPage: React.FC = () => {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setApiError(msg);
+      setShowRecommendation(false);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +90,7 @@ export const AIRecommendationPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    runRecommendation(formInputs);
+    runRecommendation(formInputs, true);
   };
 
   return (
@@ -113,10 +125,10 @@ export const AIRecommendationPage: React.FC = () => {
         </div>
       )}
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* ── Input Form ── */}
-        <div className="lg:col-span-6">
+      {/* Flip workspace: the form is the front face and the result is the back face. */}
+      <div className={`flip-stage w-full max-w-3xl mx-auto ${showRecommendation ? 'is-flipped' : ''}`}>
+        <div className="flip-inner">
+          <div className="flip-face flip-front">
           <Card className="p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
               <Sliders className="w-4 h-4 text-slate-700" /> Target Hardware Specifications
@@ -135,6 +147,7 @@ export const AIRecommendationPage: React.FC = () => {
                   {HARDWARE_PRESETS.map((p) => (
                     <option key={p.mcu} value={p.label}>{p.label}</option>
                   ))}
+                  <option value="esp32-info" disabled>ESP32 Xtensa LX6 (RAM capacity not reported in dataset; use Custom Target)</option>
                 </select>
               </div>
 
@@ -191,6 +204,17 @@ export const AIRecommendationPage: React.FC = () => {
                 </p>
               </div>
 
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Application Profile</label>
+                <select
+                  value={formInputs.applicationProfile}
+                  onChange={(e) => setFormInputs({ ...formInputs, applicationProfile: e.target.value })}
+                  className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-900 outline-none"
+                >
+                  {APPLICATION_PROFILES.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                </select>
+              </div>
+
               {/* Optimization + CPU Load */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -240,10 +264,20 @@ export const AIRecommendationPage: React.FC = () => {
               </Button>
             </form>
           </Card>
-        </div>
+          </div>
 
-        {/* ── ML Output Card ── */}
-        <div className="lg:col-span-6">
+          <div className="flip-face flip-back">
+            <div className="flex justify-end mb-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={<ArrowLeft className="w-4 h-4" />}
+                onClick={() => setShowRecommendation(false)}
+              >
+                Edit inputs
+              </Button>
+            </div>
           {isLoading && !result ? (
             <Card className="p-12 flex items-center justify-center gap-3 text-slate-500 text-sm">
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -252,6 +286,7 @@ export const AIRecommendationPage: React.FC = () => {
           ) : result ? (
             <RecommendationCard result={result} />
           ) : null}
+          </div>
         </div>
       </div>
     </div>

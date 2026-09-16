@@ -39,3 +39,27 @@
 .animate-fade-in {
   animation: fadeIn 0.25s ease-out forwards;
 }
+
+.flip-stage {
+  perspective: 1400px;
+}
+
+.flip-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.flip-stage.is-flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  min-width: 0;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}

@@ -133,7 +133,7 @@ export const AnalyticsPage: React.FC = () => {
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '11px', color: '#0f172a',
   };
 
-  const stats = analytics ?? { totalBenchmarks: 63000, totalPasses: 63000, totalOOMs: 0, passRatePercent: 100, avgEncapLatencyUs: 168.47, aiAccuracyPercent: 84.62 };
+  const stats = analytics ?? { totalBenchmarks: 37914, totalPasses: 37914, totalOOMs: 0, passRatePercent: 100, avgEncapLatencyUs: 0, aiAccuracyPercent: 0 };
 
   if (loading) {
     return (
@@ -165,7 +165,7 @@ export const AnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Benchmarks"   value={stats.totalBenchmarks.toLocaleString()} subtitle="Empirical NIST FIPS 203 measurements" icon={<Activity className="w-5 h-5 text-slate-700" />} />
         <StatCard title="Pass Rate"          value={`${stats.passRatePercent}%`}       subtitle={`${stats.totalOOMs} OOM events recorded`} icon={<ShieldCheck className="w-5 h-5 text-slate-700" />} />
-        <StatCard title="Avg Encap Latency"  value={`${stats.avgEncapLatencyUs.toFixed(1)} µs`} subtitle="Mean across all 7 environments" icon={<Zap className="w-5 h-5 text-slate-700" />} />
+        <StatCard title="Avg Encap Latency"  value={`${stats.avgEncapLatencyUs.toFixed(1)} µs`} subtitle="Mean across loaded benchmark observations" icon={<Zap className="w-5 h-5 text-slate-700" />} />
         <StatCard title="AI Model Accuracy"  value={`${stats.aiAccuracyPercent}%`}     subtitle="Random Forest, 80/20 Train/Test Split" icon={<Cpu className="w-5 h-5 text-slate-700" />} />
       </div>
 
@@ -196,7 +196,7 @@ export const AnalyticsPage: React.FC = () => {
         <div className="lg:col-span-6">
           <Card className="p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-slate-700" /> CPU Execution Cycles (Kilo-Cycles)
+              <Cpu className="w-4 h-4 text-slate-700" /> Derived Cycle Equivalents (Kilo-Cycles)
             </h3>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -294,7 +294,7 @@ export const AnalyticsPage: React.FC = () => {
                 ['Training Data',    `${stats.totalBenchmarks.toLocaleString()} live observations → ${Math.max(1, Math.round(stats.totalBenchmarks / 500)).toLocaleString()} derived candidates`],
                 ['Validation',       'Explicit 80% Train / 20% Test Split'],
                 ['Test Accuracy',    `${stats.aiAccuracyPercent}%`],
-                ['Weighted F1',      '0.778'],
+                    ['Test F1',           '0.833'],
                 ['Features Used',    'security_req, latency_sens, mem_constraint, handshake_latency_ms, architecture, measurement_type'],
                 ['Artifact',         'ml/artifacts/recommendation_policy_model.joblib'],
                 ['Inference Path',   'POST /api/recommendation → ai_engine.py → RF model → RecommendationResult'],

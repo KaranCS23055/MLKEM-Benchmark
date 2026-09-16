@@ -41,6 +41,9 @@ app.add_middleware(
 
 SETTINGS_DB = {
     "datasetSource": "data/processed/phase11_statistics/observations.csv",
+    "apiBaseUrl": "http://127.0.0.1:8000/api",
+    "renodePath": "C:\\Program Files\\Renode\\renode.exe",
+    "useLiveApi": True,
     "themePreference": "system",
     "cacheEnabled": True,
     "logLevel": "INFO",
@@ -235,6 +238,19 @@ async def get_processors():
             "description": "Resource-constrained 32-bit RISC microcontroller with 80 KB SRAM evaluating FIPS 203 ML-KEM.",
             "features": ["80MHz Tensilica Core", "80KB SRAM", "Hardware WDT Guard", "Real IoT Silicon"],
         },
+        {
+            "mcu": "ESP32 Xtensa Dual-Core 240MHz",
+            "name": "Espressif ESP32 Xtensa LX6 (Arduino Core)",
+            "core": "Xtensa LX6 (2 Cores)",
+            "architecture": "xtensa_lx6",
+            "frequency": 240,
+            "ram": 0,
+            "flash": 0,
+            "voltage": "3.3V",
+            "supportedVariants": ["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"],
+            "description": "Physical ESP32 Xtensa LX6 benchmark target using Arduino/FreeRTOS and mlkem-native v1.2.0.",
+            "features": ["240MHz dual core", "Xtensa LX6", "Arduino Core", "Real IoT Silicon", "Dataset RAM field unavailable"],
+        },
     ]
 
 
@@ -297,15 +313,25 @@ async def get_analytics():
     rows = _load_dataset()
     successful_rows = [row for row in rows if row.get("success", "").lower() == "true"]
     encapsulations = [float(_parse_number(row.get("execution_time_ns"))) for row in successful_rows if row.get("operation") == "encapsulation"]
+    model_accuracy = 0.0
+    report_path = Path(__file__).resolve().parent.parent / "data" / "processed" / "phase11_training" / "model_evaluation.json"
+    if report_path.exists():
+        try:
+            with report_path.open(encoding="utf-8") as handle:
+                model_accuracy = float(json.load(handle).get("selected_model_metrics", {}).get("accuracy", 0.0)) * 100
+        except (OSError, ValueError, TypeError):
+            model_accuracy = 0.0
+    processors = {row.get("processor") for row in rows if row.get("processor")}
     return {
         "totalBenchmarks": len(rows),
         "totalPasses": len(successful_rows),
         "totalOOMs": sum(row.get("error_message") == "OOM" for row in rows),
         "passRatePercent": round(len(successful_rows) / len(rows) * 100, 2) if rows else 0.0,
         "avgEncapLatencyUs": round(sum(encapsulations) / len(encapsulations) / 1000, 2) if encapsulations else 0.0,
-        "supportedProcessors": len({row.get("environment") for row in rows}),
+        "supportedProcessors": len(processors),
+        "supportedPlatforms": len({row.get("environment") for row in rows}),
         "mlkemVariants": len({row.get("mlkem_variant") for row in rows}),
-        "aiAccuracyPercent": 72.73,
+        "aiAccuracyPercent": round(model_accuracy, 2),
     }
 
 

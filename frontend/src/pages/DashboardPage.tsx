@@ -69,14 +69,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   }, []);
 
   const stats = analytics ?? {
-    totalBenchmarks: 63000,
-    totalPasses: 63000,
+    totalBenchmarks: 37914,
+    totalPasses: 37914,
     totalOOMs: 0,
     passRatePercent: 100,
-    avgEncapLatencyUs: 168.47,
-    supportedProcessors: 7,
+    avgEncapLatencyUs: 641.9,
+    supportedProcessors: 6,
     mlkemVariants: 3,
-    aiAccuracyPercent: 84.62,
+    aiAccuracyPercent: 90.48,
   };
 
   return (
@@ -96,7 +96,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </h1>
             <p className="text-xs lg:text-sm text-slate-600 leading-relaxed">
               Empirical characterization of NIST FIPS 203 ML-KEM variants (512, 768, 1024) across
-              7 hardware execution environments (x86-64 Windows, x86-64 WSL2, x86-32, aarch64, riscv64, Cortex-M4).
+              six processor/device profiles, including native software execution on x86_64 and physical ARM/Xtensa targets.
               {analytics && <span className="text-emerald-700 font-semibold"> {stats.totalBenchmarks.toLocaleString()} benchmark measurements loaded live from backend.</span>}
             </p>
 
@@ -121,7 +121,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
               Random Forest ML surrogate model.
             </p>
             <div className="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-500">
-              <span className="text-emerald-600 font-bold">ML Model:</span> Random Forest · Accuracy: 84.62% · 80/20 Split F1: 0.778
+              <span className="text-emerald-600 font-bold">ML Model:</span> Random Forest · metrics loaded from the current evaluation report · 80/20 split
             </div>
           </div>
         </div>
