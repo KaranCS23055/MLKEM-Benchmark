@@ -2,16 +2,20 @@
 
 This registry is the authoritative admission record for benchmark data. `data/raw/` contains only standardized, valid `mlkem-native v1.2.0` measurements. Historical or calibration files are archived separately under `data/archive/`.
 
-## Admitted benchmark datasets (36,000 rows total)
+## Admitted benchmark datasets (37,914 rows total)
 
-All 36,000 admitted rows use the same **`mlkem-native v1.2.0`** implementation and the same operation protocol. They are comparable for implementation-level analysis, but timings from different execution types must **not** be pooled or claimed as equivalent physical-hardware performance.
+All admitted rows use the same **`mlkem-native v1.2.0`** implementation and operation protocol. They are comparable for implementation-level analysis, but timings from different execution types must **not** be pooled or described as equivalent physical-hardware performance. The current admission manifest records 17 source files, 37,914 successful rows, and 51 statistic groups.
 
-| Environment ID | Architecture | Execution Type | Compiler | Rows | Real-World Target | Key Finding |
-| --- | --- | --- | --- | ---: | --- | --- |
-| `native_x86_64_mlkem_native` | `x86_64` | `NATIVE_SOFTWARE` | GCC | 27,000 | Cloud servers, workstations, laptops | Current native x86-64 measurements |
-| `android_vivo_y19_termux` | `aarch64` | `REAL_HARDWARE`¹ | Clang | 9,000 | Android smartphones, ARM servers | Mobile real-silicon measurements |
+| Processor/device profile | Architecture | Execution type | Rows | Variants |
+| --- | --- | --- | ---: | --- |
+| Intel Core i7-11800H | `x86_64` | `NATIVE_SOFTWARE` | 9,000 | 512, 768, 1024 |
+| AMD Ryzen 5 4600H | `x86_64` | `NATIVE_SOFTWARE` | 9,000 | 512, 768, 1024 |
+| AMD Ryzen 3 7320U | `x86_64` | `NATIVE_SOFTWARE` | 9,000 | 512, 768, 1024 |
+| MediaTek Helio P65 / Vivo Y19 | `aarch64` | `REAL_HARDWARE` | 9,000 | 512, 768, 1024 |
+| Espressif ESP8266EX | `xtensa_lx106` | `REAL_HARDWARE` | 540 | 512, 768 |
+| Espressif ESP32 Xtensa LX6 | `xtensa_lx6` | `REAL_HARDWARE` | 1,374 | 512, 768, 1024 |
 
-**Total admitted observations: 36,000 across the currently admitted x86-64 and Android configurations.** Historical, single-core, 32-bit x86, and RISC-V records remain outside the current admitted raw dataset and must not be presented as current measurements.
+Historical single-core, 32-bit x86, and RISC-V records remain outside the current admitted raw inventory. ESP8266 ML-KEM-1024 is also outside the current inventory because it was not benchmarked; its absence is not a measured failure.
 
 > [!NOTE]
 > **Why 32-bit?** The NIST 2030 post-quantum migration deadline applies to *all* device classes. Hundreds of millions of ATMs, industrial PLCs, SCADA systems, and medical devices run 32-bit OS and cannot be replaced before 2030. The `native_x86_32` environment directly measures ML-KEM feasibility on those systems — proving ML-KEM-512 is viable (241.9 µs) but ML-KEM-1024 is tight (590.6 µs) for real-time use.
@@ -19,7 +23,7 @@ All 36,000 admitted rows use the same **`mlkem-native v1.2.0`** implementation a
 > [!NOTE]
 > **Why QEMU RISC-V?** Physical RISC-V Linux boards are not yet in this project's hardware inventory. QEMU `rv64gc` provides a reproducible RISC-V Linux environment. Results are labeled `EMULATED` — the ~15× overhead vs native x86-64 is QEMU's dynamic binary translation, not the RISC-V ISA itself.
 
-¹ Raw CSVs record `measurement_type = "NATIVE_HARDWARE"` (legacy label used before standardization). The correct project-standard label is `REAL_HARDWARE`. The normalization is documented in `data/processed/android_normalized/`.
+Raw CSVs may record the legacy `NATIVE_HARDWARE` label; processed data normalizes it to `REAL_HARDWARE`.
 
 ## SHA-256 integrity
 

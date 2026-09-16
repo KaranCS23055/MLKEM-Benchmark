@@ -3,7 +3,7 @@ import { RecommendationResult } from '../../types';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { ProgressBar } from './ProgressBar';
-import { ShieldCheck, Cpu, Zap, Activity, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Cpu, Zap, Activity, AlertTriangle } from 'lucide-react';
 
 interface RecommendationCardProps {
   result: RecommendationResult;
@@ -20,10 +20,22 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ result }
     estimatedRamKb,
     ramUtilizationPercent,
     latencyCompliance,
-    comparisonBadges,
+    latencyBudgetUs = 0,
+    variantEvaluations = [],
+    applicationProfile,
+    modelName,
   } = result;
 
   const isUnsupported = recommendedVariant === 'UNSUPPORTED';
+  const totalLatencyUs = estimatedKeygenUs + estimatedEncapUs + estimatedDecapUs;
+  const profileLabel = (applicationProfile || 'general').replace(/_/g, ' ');
+  const latencyMessage = latencyCompliance === 'EXCELLENT'
+    ? `Total estimated time is ${(totalLatencyUs / 1000).toFixed(2)} ms, comfortably below your latency budget.`
+    : latencyCompliance === 'COMPLIANT'
+    ? `Total estimated time is ${(totalLatencyUs / 1000).toFixed(2)} ms, within your latency budget.`
+    : latencyCompliance === 'WARNING'
+    ? `Total estimated time is ${(totalLatencyUs / 1000).toFixed(2)} ms, slightly above your latency budget.`
+    : `Total estimated time is ${(totalLatencyUs / 1000).toFixed(2)} ms, above your latency budget.`;
 
   return (
     <Card className="p-6">
@@ -34,7 +46,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ result }
             {isUnsupported ? <AlertTriangle className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}
           </div>
           <div>
-            <span className="text-xs uppercase font-semibold tracking-wider text-slate-500">AI Recommendation Result</span>
+            <span className="text-xs uppercase font-semibold tracking-wider text-slate-500">Recommendation</span>
             <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 font-mono">
               {recommendedVariant}
               {!isUnsupported && (
@@ -55,14 +67,17 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ result }
 
       {/* Reason text */}
       <div className="bg-slate-50 p-4 rounded-md border border-slate-200 mb-6">
+        <p className="text-xs uppercase font-semibold tracking-wider text-slate-500 mb-1">Why this choice</p>
         <p className="text-sm text-slate-700 leading-relaxed">{reason}</p>
+        <p className="text-[11px] text-slate-500 mt-2">For <span className="font-semibold capitalize">{profileLabel}</span> · Analysis: <span className="font-semibold">{modelName || 'backend policy'}</span></p>
       </div>
 
+      <p className="text-xs text-slate-500 mb-2">Estimated time for the recommended variant</p>
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-3.5 rounded-md border border-slate-200">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-slate-600" /> KeyGen Latency
             </span>
             <span className="text-sm font-bold text-slate-900 font-mono">{(estimatedKeygenUs / 1000).toFixed(2)} ms</span>
@@ -108,7 +123,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ result }
 
         <div className="bg-white p-3.5 rounded-md border border-slate-200 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Latency Budget Compliance</span>
+              <span className="text-xs text-slate-500 font-medium">Latency budget</span>
             <Badge
               variant={
                 latencyCompliance === 'EXCELLENT'
@@ -120,28 +135,32 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ result }
                   : 'error'
               }
             >
-              {latencyCompliance}
+              {latencyCompliance === 'EXCELLENT' ? 'Comfortably within budget' : latencyCompliance === 'COMPLIANT' ? 'Within budget' : latencyCompliance === 'WARNING' ? 'Slightly over budget' : 'Over budget'}
             </Badge>
           </div>
           <p className="text-xs text-slate-600 mt-2">
-            Total latency ({( (estimatedKeygenUs + estimatedEncapUs + estimatedDecapUs) / 1000 ).toFixed(1)} ms) is within target real-time application constraints.
+            {latencyMessage}
           </p>
+          <p className="text-[11px] text-slate-400 mt-1">Budget: {latencyBudgetUs.toLocaleString()} µs</p>
         </div>
       </div>
 
-      {/* Comparison Badges */}
-      <div>
-        <h4 className="text-xs uppercase font-semibold tracking-wider text-slate-500 mb-3">Hardware & Security Constraints Verification</h4>
-        <div className="flex flex-wrap gap-2">
-          {comparisonBadges.map((badge, idx) => (
-            <Badge key={idx} variant={badge.type}>
-              <CheckCircle2 className="w-3 h-3" />
-              <span className="text-slate-600">{badge.label}:</span>
-              <span className="font-bold text-slate-900">{badge.value}</span>
-            </Badge>
-          ))}
+      {variantEvaluations.length > 0 && (
+        <div className="mt-6 border-t border-slate-200 pt-5">
+          <h4 className="text-xs uppercase font-semibold tracking-wider text-slate-500 mb-3">How the alternatives compare</h4>
+          <div className="space-y-2">
+            {variantEvaluations.map((evaluation) => (
+              <div key={evaluation.variant} className="border border-slate-200 rounded-md p-3 bg-white">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-mono text-xs font-bold text-slate-900">{evaluation.variant}</span>
+                  <Badge variant={evaluation.status === 'SELECTED' ? 'success' : evaluation.status.startsWith('DISQUALIFIED') || evaluation.status.includes('UNSUPPORTED') ? 'error' : 'warning'}>{evaluation.statusLabel}</Badge>
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">{evaluation.reason}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </Card>
   );
 };

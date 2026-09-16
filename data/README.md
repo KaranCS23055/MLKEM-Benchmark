@@ -1,10 +1,10 @@
 # 📊 NIST FIPS 203 ML-KEM Empirical Benchmark Dataset
 
-[![Dataset Size](https://img.shields.io/badge/Active%20Measurements-36%2C540%20Rows-blue.svg)](raw/)
+[![Dataset Size](https://img.shields.io/badge/Active%20Measurements-37%2C914%20Rows-blue.svg)](raw/)
 [![Integrity](https://img.shields.io/badge/SHA--256-Verified%20Manifests-emerald.svg)](metadata/)
 [![Standard](https://img.shields.io/badge/NIST%20Standard-FIPS%20203%20ML--KEM-purple.svg)](https://csrc.nist.gov/pubs/fips/203/final)
 [![Implementation](https://img.shields.io/badge/Source-mlkem--native%20v1.2.0%20(Pure%20C99)-amber.svg)](https://github.com/pq-code-package/mlkem-native)
-[![Targets](https://img.shields.io/badge/Hardware%20Targets-5%20Physical%20Silicon-emerald.svg)](../README.md)
+[![Targets](https://img.shields.io/badge/Profiles-6%20Processor%2FDevice-emerald.svg)](../README.md)
 
 ---
 
@@ -12,7 +12,7 @@
 
 This directory contains the verified, append-only **empirical performance dataset** collected for the NIST FIPS 203 Module-Lattice-Based Key-Encapsulation Mechanism (ML-KEM) benchmark research project.
 
-Every measurement in this dataset is an **empirical execution record** produced by compiling and running the official **`mlkem-native v1.2.0`** C99 source code on **real physical hardware targets only** (no software emulation, no virtual machines).
+Every measurement in this dataset is an **empirical execution record** produced by compiling and running the official **`mlkem-native v1.2.0`** C99 source code. Each row records its execution type: `NATIVE_SOFTWARE` for the x86_64 profiles and `REAL_HARDWARE` for the Android and Xtensa targets.
 
 ---
 
@@ -20,11 +20,11 @@ Every measurement in this dataset is an **empirical execution record** produced 
 
 ```text
 data/
-├── raw/                         # 14 immutable, verified raw CSV benchmark files (36,540 rows)
+├── raw/                         # 17 immutable, verified raw CSV benchmark files (37,914 rows)
 ├── metadata/                    # SHA-256 checksums and execution environment manifests
 └── processed/
-    ├── phase11_statistics/      # Normalized observations and 36-group statistics summary
-    │   ├── observations.csv     # Complete 36,540-row master empirical dataset
+    ├── phase11_statistics/      # Normalized observations and 51-group statistics summary
+    │   ├── observations.csv     # Complete 37,914-row master empirical dataset
     │   ├── benchmark_statistics.csv # Grouped Mean, Median, StdDev, P95, P99 metrics
     │   └── admission_manifest.json
     └── phase11_training/        # Feature-engineered training data & model evaluation metrics
@@ -35,9 +35,9 @@ data/
 
 ---
 
-## 🗂️ Verified Raw Dataset Inventory (14 CSV Files — 36,540 Rows)
+## 🗂️ Verified Raw Dataset Inventory (17 CSV Files — 37,914 Rows)
 
-Across **5 real physical silicon targets**:
+Across **6 processor/device profiles**: three x86_64 native software profiles, one ARM64 physical device, and two Xtensa physical devices:
 
 | File Name | Target Hardware / Platform | Architecture | Variant | Rows | Measurements |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -55,12 +55,19 @@ Across **5 real physical silicon targets**:
 | `android_vivo_y19_mlkem_1024_20260812T204813Z.csv` | MediaTek Helio P65 / Vivo Y19 (Termux) | `aarch64` | ML-KEM-1024 | 3,000 | 1,000 iterations × 3 ops |
 | `esp8266_xtensa_lx106_arduino_mlkem_512_20260915T161500Z.csv` | ESP8266EX Xtensa LX106 @ 80MHz | `xtensa_lx106` | ML-KEM-512 | 270 | 90 iterations × 3 ops |
 | `esp8266_xtensa_lx106_arduino_mlkem_768_20260915T180200Z.csv` | ESP8266EX Xtensa LX106 @ 80MHz | `xtensa_lx106` | ML-KEM-768 | 270 | 90 iterations × 3 ops |
-| **TOTAL DATASET** | **5 Physical Hardware Targets** | **3 Architectures** | **FIPS 203** | **36,540** | **100% Cryptographic Verification** |
+| `esp32_xtensa_lx6_arduino_mlkem_512/768/1024_20260916T110000Z.csv` | ESP32 Xtensa LX6 Dual-Core @ 240MHz | `xtensa_lx6` | ML-KEM-512/768/1024 | 1,374 | 458 iterations × 3 ops |
+| **TOTAL DATASET** | **6 Processor/Device Profiles** | **4 Architectures** | **FIPS 203** | **37,914** | **100% Cryptographic Verification** |
 
 > [!IMPORTANT]
-> **Physical Silicon Policy**: All measurements strictly evaluate genuine physical silicon targets: high-performance workstation, mid-range laptop, budget laptop, mobile smartphone SoC, and an embedded IoT microcontroller.
+> **Execution-type policy**: Do not compare `NATIVE_SOFTWARE` and `REAL_HARDWARE` timings as if they were the same measurement class. The raw CSV and processed fields preserve this distinction.
 >
 > **CPU Core Schema Note**: In all raw CSVs, `cpu_cores` represents the physical CPU core count (e.g. `4` for AMD Ryzen 3 7320U, `6` for AMD Ryzen 5 4600H, `8` for Intel i7-11800H and MediaTek Helio P65, `1` for ESP8266EX).
+
+### Variant Coverage and Unbenchmarked Cases
+
+All three operations were successfully recorded for each listed variant. Intel Core i7-11800H, AMD Ryzen 5 4600H, AMD Ryzen 3 7320U, MediaTek Helio P65/Vivo Y19, and ESP32 Xtensa LX6 have ML-KEM-512, ML-KEM-768, and ML-KEM-1024 measurements. ESP8266EX has ML-KEM-512 and ML-KEM-768 measurements only. **ESP8266 ML-KEM-1024 was not benchmarked and is not validated by this dataset**; no failure or OOM measurement should be inferred from its absence.
+
+Arduino Uno (ATmega328P, 2 KB SRAM) and Arduino Mega (ATmega2560, 8 KB SRAM) have no benchmark rows for any ML-KEM variant. They are unvalidated, unbenchmarked AVR candidates, not failed benchmark targets.
 
 ---
 

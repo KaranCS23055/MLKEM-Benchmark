@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "created_at_utc": "2026-09-15T19:10:02.471043+00:00",
+  "created_at_utc": "2026-09-16T12:19:59.056340+00:00",
   "provenance": "DERIVED from validated data/raw only; raw files were not modified.",
   "normalization": {
     "NATIVE_HARDWARE": "REAL_HARDWARE"
   },
-  "row_count": 36540,
-  "successful_measurement_count": 36540,
-  "statistics_group_count": 42,
+  "row_count": 37914,
+  "successful_measurement_count": 37914,
+  "statistics_group_count": 51,
   "source_files": [
     {
       "file": "android_vivo_y19_mlkem_1024_20260812T204813Z.csv",
@@ -23,6 +23,21 @@
       "file": "android_vivo_y19_mlkem_768_20260812T204804Z.csv",
       "sha256": "0b296f6f525ed9912d28c05cfa3e30bd47ebdef0123bb3ba31037cc5c8d004f5",
       "row_count": 3000
+    },
+    {
+      "file": "esp32_xtensa_lx6_arduino_mlkem_1024_20260916T110000Z.csv",
+      "sha256": "e37becfb4c57faa19bd9ff1a227e8194ed7e9f8fcaffa20dfef073cf48f0c4ba",
+      "row_count": 456
+    },
+    {
+      "file": "esp32_xtensa_lx6_arduino_mlkem_512_20260916T110000Z.csv",
+      "sha256": "06886a6c2e96d8addcf626ecba82c58b01ecdc6e62731bebe9a4f6e4652f60c4",
+      "row_count": 459
+    },
+    {
+      "file": "esp32_xtensa_lx6_arduino_mlkem_768_20260916T110000Z.csv",
+      "sha256": "ab6404287da935a53ce37afe834986efea534cffc4146e1f3e58f10e43100c82",
+      "row_count": 459
     },
     {
       "file": "esp8266_xtensa_lx106_arduino_mlkem_512_20260915T161500Z.csv",
@@ -82,7 +97,7 @@
   ],
   "measurement_type_counts": {
     "NATIVE_SOFTWARE": 27000,
-    "REAL_HARDWARE": 9540
+    "REAL_HARDWARE": 10914
   },
   "limitations": [
     "Timing values from different execution types must not be pooled as equivalent hardware performance.",

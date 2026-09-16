@@ -1,10 +1,10 @@
-# Phase 2 native methodology
+# Benchmark methodology and provenance
 
 ## Implementation
 
-The benchmark uses Python package `pqcrypto==0.4.0` and its native ML-KEM bindings. Its published package documentation lists `ml_kem_512`, `ml_kem_768`, and `ml_kem_1024`. The benchmark calls only these public bindings; it does not reimplement or modify ML-KEM mathematics.
+The admitted benchmark dataset uses unchanged `mlkem-native v1.2.0` C99 implementations for ML-KEM-512, ML-KEM-768, and ML-KEM-1024. The project does not reimplement or modify ML-KEM mathematics. Earlier `pqcrypto==0.4.0` experiments are historical reference data under `data/archive/` and are not the current admitted dataset.
 
-The selected version is pinned in `requirements.txt`. The prebuilt Windows x86-64 wheel is used as `NATIVE_SOFTWARE`; no claim is made that the Python orchestration layer itself is a C-level benchmark harness.
+The execution type is recorded in every row. The current x86_64 profiles are `NATIVE_SOFTWARE`; Android and Xtensa firmware runs are `REAL_HARDWARE`. The Python tools process and validate CSV output but do not turn native software timings into physical-device measurements.
 
 ## Timing method
 

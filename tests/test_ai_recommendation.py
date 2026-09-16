@@ -24,6 +24,9 @@ def test_ai_recommendation_cortex_m4():
     assert result.estimatedEncapUs > 0
     assert result.estimatedDecapUs > 0
     assert len(result.comparisonBadges) >= 3
+    assert len(result.variantEvaluations) == 3
+    assert "80/20 train/test" in result.modelName
+    assert "test accuracy" in result.reason
 
 
 def test_ai_recommendation_x86_server():

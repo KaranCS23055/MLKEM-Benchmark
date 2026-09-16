@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Settings, Server, Database, Save, CheckCircle2 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
-  const [fastApiUrl, setFastApiUrl] = useState('http://127.0.0.1:8000/api/v1');
+  const [fastApiUrl, setFastApiUrl] = useState('http://127.0.0.1:8000/api');
   const [renodePath, setRenodePath] = useState('C:\\Program Files\\Renode\\renode.exe');
   const [useLiveApi, setUseLiveApi] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((response) => response.ok ? response.json() : null)
+      .then((settings) => {
+        if (!settings) return;
+        if (typeof settings.apiBaseUrl === 'string') setFastApiUrl(settings.apiBaseUrl);
+        if (typeof settings.renodePath === 'string') setRenodePath(settings.renodePath);
+        if (typeof settings.useLiveApi === 'boolean') setUseLiveApi(settings.useLiveApi);
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiBaseUrl: fastApiUrl, renodePath, useLiveApi }),
+    });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
   };
@@ -26,7 +43,7 @@ export const SettingsPage: React.FC = () => {
           <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Framework & Data Settings</h1>
             <p className="text-xs text-slate-500">
-              Configure dataset provider mode, backend REST API endpoints, and simulator paths
+              Configure the dataset source and backend endpoint. Renode path is retained for legacy simulator workflows.
             </p>
           </div>
         </div>
@@ -89,7 +106,7 @@ export const SettingsPage: React.FC = () => {
           {/* Renode Executable Path */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Renode CLI Executable Path
+              Legacy Renode CLI Executable Path
             </label>
             <input
               type="text"

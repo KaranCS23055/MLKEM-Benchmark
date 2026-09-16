@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
-import { PROCESSOR_PROFILES } from '../data/mockData';
+import React, { useEffect, useState } from 'react';
+import { ProcessorProfile } from '../types';
 import { ProcessorCard } from '../components/ui/ProcessorCard';
 import { Card } from '../components/ui/Card';
 import { Cpu, Filter, Search } from 'lucide-react';
 
 export const ProcessorsPage: React.FC = () => {
+  const [processors, setProcessors] = useState<ProcessorProfile[]>([]);
   const [search, setSearch] = useState('');
   const [selectedArch, setSelectedArch] = useState<string>('ALL');
 
-  const filteredProcessors = PROCESSOR_PROFILES.filter((p) => {
+  useEffect(() => {
+    fetch('/api/processors').then((response) => response.json()).then(setProcessors).catch(() => setProcessors([]));
+  }, []);
+
+  const filteredProcessors = processors.filter((p) => {
     const matchesSearch =
       p.mcu.toLowerCase().includes(search.toLowerCase()) ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -30,7 +35,7 @@ export const ProcessorsPage: React.FC = () => {
           <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Evaluated Hardware Silicon Profiles</h1>
             <p className="text-xs text-slate-500">
-              Empirical hardware profiles across 5 physical silicon targets (Intel i7-11800H, AMD Ryzen 5 4600H, AMD Ryzen 3 7320U, MediaTek Helio P65, ESP8266EX)
+              Empirical hardware profiles loaded from the benchmark dataset, including the latest ESP32 Xtensa LX6 run
             </p>
           </div>
         </div>
