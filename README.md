@@ -87,6 +87,32 @@ Arduino Uno (ATmega328P) and Arduino Mega (ATmega2560) were **not benchmarked** 
 
 The project’s validated `mlkem-native` integration targets 32-bit and 64-bit environments with suitable toolchains and platform support. No maintained, validated AVR/Arduino Uno/Mega port is included here, and no reproducible implementation/library configuration was available for these boards. Consequently, attempting a run would risk stack exhaustion, watchdog resets, timing dominated by failures, or incomplete cryptographic verification rather than a useful benchmark. They are therefore **impractical/unvalidated hardware candidates**, not devices that were actually benchmarked and not devices for which this project claims measured OOM or latency results.
 
+### Why Arduino Uno and Mega Have No Benchmark Output
+
+The Uno and Mega entries in this README document requested or considered hardware targets, not completed benchmark runs. No valid CSV output was produced for either board because the benchmark could not be established with the available AVR support, memory, and execution resources. Therefore, the table intentionally shows **Not benchmarked** instead of inventing execution time, memory consumption, failure, or out-of-memory values.
+
+### Practical Hardware Requirements for ML-KEM
+
+The following sizes are the mandatory ML-KEM byte parameters defined by FIPS 203. They describe the key, ciphertext, and shared-secret objects; an implementation also needs additional temporary workspace, stack, buffers, and runtime memory.
+
+| ML-KEM parameter set | Security category | Public key | Secret key | Ciphertext | Shared secret | Practical target guidance |
+| :--- | :---: | ---: | ---: | ---: | ---: | :--- |
+| ML-KEM-512 | 1 | 800 B | 1,632 B | 768 B | 32 B | 32-bit MCU or stronger; at least 32 KB SRAM recommended |
+| ML-KEM-768 | 3 | 1,184 B | 2,400 B | 1,088 B | 32 B | 32-bit MCU or stronger; at least 64 KB SRAM recommended |
+| ML-KEM-1024 | 5 | 1,568 B | 3,168 B | 1,568 B | 32 B | 32-bit MCU or stronger; at least 128 KB SRAM recommended |
+
+These SRAM values are practical project recommendations, not FIPS limits. They provide room for ML-KEM objects, polynomial and NTT workspace, the call stack, the operating-system or Arduino runtime, serial buffers, and application state. A device can have enough memory for the listed objects but still fail because its stack, heap, compiler, or ML-KEM integration is unsuitable.
+
+For a reproducible benchmark, a target should also provide:
+
+- A supported 32-bit or 64-bit C99 toolchain and a validated `mlkem-native` port.
+- A cryptographically secure random source for key generation and encapsulation.
+- A monotonic timer with sufficient resolution for the target latency.
+- At least 32 KB of Flash for ML-KEM-512 code and buffers; 64 KB or more is recommended for ML-KEM-768/1024, excluding the bootloader and application.
+- A way to report success, execution time, and memory without changing the measured operation.
+
+The AVR-based Uno and Mega do not satisfy the project’s validated integration requirement. Their 2 KB and 8 KB SRAM capacities are also below the practical recommendations, so this project does not claim that they can execute any ML-KEM parameter set reliably. ESP8266 and ESP32 are separate Arduino-framework targets with Xtensa processors and were benchmarked using dedicated firmware integrations.
+
 ---
 
 ## 🖥️ Evaluated Hardware Platforms (Physical Silicon Tiers)
@@ -106,7 +132,37 @@ The admitted dataset contains both native software execution profiles and physic
 
 ## Benchmark Results
 
-The UI and API expose the actual per-operation observations and aggregate statistics from the processed CSV. This README intentionally does not reproduce a hand-maintained latency table: values must remain traceable to `execution_time_ns`, `memory_bytes`, and the recorded verification status. Missing values remain missing, including the ESP32 system RAM field.
+The following table is derived from [`benchmark_statistics.csv`](data/processed/phase11_statistics/benchmark_statistics.csv). Execution times are mean values across successful observations. `Total handshake` is the sum of mean KeyGen, Encapsulation, and Decapsulation time for the same processor and variant. Memory is the mean recorded `memory_bytes` value across the three operations, shown in KiB.
+
+| Processor / device | Architecture | Cores | ML-KEM variant | KeyGen (ms) | Encap (ms) | Decap (ms) | Total handshake (ms) | Memory (KiB) |
+| :--- | :---: | ---: | :---: | ---: | ---: | ---: | ---: | ---: |
+| AMD Ryzen 3 7320U | `x86_64` | 4 | ML-KEM-512 | 0.0371 | 0.0407 | 0.0486 | **0.1265** | 1,663.96 |
+| AMD Ryzen 3 7320U | `x86_64` | 4 | ML-KEM-768 | 0.0606 | 0.0646 | 0.0770 | **0.2022** | 1,536.00 |
+| AMD Ryzen 3 7320U | `x86_64` | 4 | ML-KEM-1024 | 0.0988 | 0.1056 | 0.1182 | **0.3225** | 1,664.00 |
+| AMD Ryzen 5 4600H | `x86_64` | 6 | ML-KEM-512 | 0.0225 | 0.0230 | 0.0282 | **0.0738** | 2,059.96 |
+| AMD Ryzen 5 4600H | `x86_64` | 6 | ML-KEM-768 | 0.0342 | 0.0367 | 0.0433 | **0.1142** | 2,044.00 |
+| AMD Ryzen 5 4600H | `x86_64` | 6 | ML-KEM-1024 | 0.0526 | 0.0580 | 0.0658 | **0.1764** | 2,060.00 |
+| Intel Core i7-11800H | `x86_64` | 8 | ML-KEM-512 | 0.0187 | 0.0200 | 0.0251 | **0.0638** | 2,060.00 |
+| Intel Core i7-11800H | `x86_64` | 8 | ML-KEM-768 | 0.0297 | 0.0319 | 0.0376 | **0.0992** | 2,184.00 |
+| Intel Core i7-11800H | `x86_64` | 8 | ML-KEM-1024 | 0.0447 | 0.0477 | 0.0545 | **0.1469** | 2,188.00 |
+| MediaTek Helio P65 / Vivo Y19 | `aarch64` | 8 | ML-KEM-512 | 0.0439 | 0.0497 | 0.0575 | **0.1511** | 3,572.00 |
+| MediaTek Helio P65 / Vivo Y19 | `aarch64` | 8 | ML-KEM-768 | 0.0886 | 0.0983 | 0.1129 | **0.2997** | 3,528.00 |
+| MediaTek Helio P65 / Vivo Y19 | `aarch64` | 8 | ML-KEM-1024 | 0.1116 | 0.1211 | 0.1362 | **0.3689** | 3,564.00 |
+| Espressif ESP32 Xtensa LX6 | `xtensa_lx6` | 2 | ML-KEM-512 | 4.8192 | 5.7376 | 7.4483 | **18.0051** | 261.75 |
+| Espressif ESP32 Xtensa LX6 | `xtensa_lx6` | 2 | ML-KEM-768 | 7.8918 | 9.1947 | 11.5058 | **28.5922** | 260.31 |
+| Espressif ESP32 Xtensa LX6 | `xtensa_lx6` | 2 | ML-KEM-1024 | 12.0053 | 13.5254 | 16.4529 | **41.9836** | 258.71 |
+| Espressif ESP8266EX | `xtensa_lx106` | 1 | ML-KEM-512 | 10.7251 | 13.2556 | 17.1790 | **41.1597** | 46.47 |
+| Espressif ESP8266EX | `xtensa_lx106` | 1 | ML-KEM-768 | 17.2974 | 20.9058 | 26.1674 | **64.3705** | 45.03 |
+| Espressif ESP8266EX | `xtensa_lx106` | 1 | ML-KEM-1024 | Not benchmarked | Not benchmarked | Not benchmarked | **Not available** | Not available |
+
+### Results Analysis
+
+- **Variant scaling:** Moving from ML-KEM-512 to ML-KEM-768 and ML-KEM-1024 increases execution time on every processor. The increase is most visible on the embedded targets because their lower clock speed and smaller compute resources make the larger polynomial workloads dominant.
+- **Fastest validated profile:** The Intel Core i7-11800H has the lowest total handshake time for all three variants: 0.0638 ms, 0.0992 ms, and 0.1469 ms respectively. The AMD Ryzen 5 4600H follows closely, while the Ryzen 3 7320U is slower despite using the same `x86_64` architecture.
+- **Mobile comparison:** The MediaTek Helio P65 records 0.1511 ms for ML-KEM-512 and 0.3689 ms for ML-KEM-1024. These are real Android hardware measurements and should not be pooled directly with the native WSL2 software profiles when making hardware-performance claims.
+- **Embedded comparison:** ESP32 ML-KEM-512 completes in 18.0051 ms, compared with 41.1597 ms on the single-core ESP8266EX. ESP32 also has complete validated coverage for all three variants; ESP8266 has coverage only for ML-KEM-512 and ML-KEM-768.
+- **Memory interpretation:** Native and Android values are process-level resident-memory observations, while ESP8266 and ESP32 values are firmware free-heap observations. They indicate the recorded runtime footprint but are not equivalent to exact per-operation allocation.
+- **Missing coverage:** ESP8266 ML-KEM-1024, Arduino Uno, and Arduino Mega have no validated measurements in this dataset. Their missing values must not be interpreted as measured failures, out-of-memory events, or latency results.
 
 ---
 
